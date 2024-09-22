@@ -1,6 +1,11 @@
 package main
 
 import (
+	"cmp"
+	"fmt"
+	"os"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
@@ -26,9 +31,11 @@ func main() {
 		})
 	})
 
-	app.All("*", func(c *fiber.Ctx) error {
-		return c.SendString("this will eventually serve the app")
+	const five_minutes = time.Second * 60 * 5
+	app.Static("/", "./dist", fiber.Static{
+		CacheDuration: five_minutes,
 	})
 
-	app.Listen("127.0.0.1:8000")
+	addr := fmt.Sprintf("0.0.0.0:%s", cmp.Or(os.Getenv("PORT"), "8080"))
+	app.Listen(addr)
 }
