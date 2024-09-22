@@ -1,5 +1,6 @@
 import { createRequestHandler } from "@remix-run/express";
 import express from "express";
+import proxy from "express-http-proxy";
 
 const vite =
 	process.env.NODE_ENV === "production"
@@ -11,6 +12,10 @@ const vite =
 			);
 
 const app = express();
+
+const proxyURL = process.env.PROXY_URL || "http://127.0.0.1:8000";
+app.use("/api", proxy(proxyURL));
+
 app.use(vite ? vite.middlewares : express.static("build/client"));
 
 const buildPath = "./build/server/index.js";
