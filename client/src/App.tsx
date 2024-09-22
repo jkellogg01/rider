@@ -1,34 +1,43 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import { useEffect, useState } from "react";
 
-function App() {
-	const [count, setCount] = useState(0);
+type User = {
+	id: number;
+	name: string;
+	age: number;
+};
+
+export default function App() {
+	const [users, setUsers] = useState<Array<User>>();
+
+	useEffect(() => {
+		new Promise((r) => setTimeout(r, 2000))
+			.then(() => fetch("/api/users"))
+			.then((res) => res.json())
+			.then((data) => setUsers(data));
+	}, []);
+
+	if (!users) return "loading...";
 
 	return (
-		<>
-			<div>
-				<a href="https://vitejs.dev" target="_blank">
-					<img src={viteLogo} className="logo" alt="Vite logo" />
-				</a>
-				<a href="https://react.dev" target="_blank">
-					<img src={reactLogo} className="logo react" alt="React logo" />
-				</a>
-			</div>
-			<h1>Vite + React</h1>
-			<div className="card">
-				<button onClick={() => setCount((count) => count + 1)}>
-					count is {count}
-				</button>
-				<p>
-					Edit <code>src/App.tsx</code> and save to test HMR
-				</p>
-			</div>
-			<p className="read-the-docs">
-				Click on the Vite and React logos to learn more
-			</p>
-		</>
+		<div className="w-full min-h-screen flex justify-center items-center">
+			<table className="block">
+				<thead>
+					<tr>
+						<th>ID</th>
+						<th>Name</th>
+						<th>Age</th>
+					</tr>
+				</thead>
+				<tbody>
+					{users.map((user) => (
+						<tr key={user.id}>
+							<td>{user.id}</td>
+							<td>{user.name}</td>
+							<td>{user.age}</td>
+						</tr>
+					))}
+				</tbody>
+			</table>
+		</div>
 	);
 }
-
-export default App;
