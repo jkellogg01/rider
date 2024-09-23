@@ -14,6 +14,8 @@ FROM oven/bun:1.1.28-slim AS client-build
 
 WORKDIR /app/client
 
+ENV NODE_ENV="production"
+
 # Install node modules for the client app
 COPY client/bun.lockb client/package.json ./
 RUN bun install --ci
