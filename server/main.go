@@ -39,7 +39,7 @@ func main() {
 		Handler: middleware.Logging(router),
 	}
 
-	log.Printf("starting server at %s", server.Addr)
+	fmt.Printf("starting server at %s", server.Addr)
 	err = server.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
@@ -56,7 +56,7 @@ func initDB() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	goose.SetLogger(log.New(os.Stdout, "[goose]", 0))
+	goose.SetLogger(log.New(os.Stdout, "[goose] ", 0))
 	err = goose.Up(db, "sql/schema")
 	if err != nil {
 		return nil, err
