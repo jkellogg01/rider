@@ -83,7 +83,7 @@ func (cfg *config) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := generateAccessToken(user.ID).SignedString(os.Getenv("JWT_SECRET"))
+	accessToken, err := generateAccessToken(user.ID).SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		log.Printf("failed to sign access token: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -169,7 +169,7 @@ func validateAccessToken(tokenString string) (*jwt.Token, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", t.Header["alg"])
 		}
-		return os.Getenv("JWT_SECRET"), nil
+		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 	if err != nil {
 		return nil, err
