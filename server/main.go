@@ -56,6 +56,7 @@ func initDB() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	goose.SetLogger(log.New(os.Stdout, "[goose]", 0))
 	err = goose.Up(db, "sql/schema")
 	if err != nil {
 		return nil, err
