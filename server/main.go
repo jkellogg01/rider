@@ -28,6 +28,8 @@ func main() {
 	api := http.NewServeMux()
 	router.Handle("/api/", http.StripPrefix("/api", api))
 	api.HandleFunc("POST /users", cfg.CreateUser)
+	api.HandleFunc("POST /login", cfg.AuthenticateUser)
+	api.HandleFunc("GET /me", cfg.GetCurrentUser)
 
 	dist := http.FileServer(http.Dir("dist"))
 	router.Handle("/", dist)

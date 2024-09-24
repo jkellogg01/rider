@@ -12,9 +12,7 @@ services:
       DATABASE_URL: "postgres://postgres:password@db:5432/rider?sslmode=disable"
     develop:
       watch:
-        - path: ./server/*
-          action: rebuild
-        - path: ./client/*
+        - path: .
           action: rebuild
   db:
     image: postgres
