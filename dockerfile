@@ -13,10 +13,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /rider
 
 FROM server-build AS server-test
 
-# NOTE: I don't know if this is the right place to do this?
-RUN go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
-RUN sqlc diff
-
 RUN go test -v ./...
 
 FROM oven/bun:1.1.28-slim AS client-build
