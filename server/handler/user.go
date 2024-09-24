@@ -28,7 +28,7 @@ func (cfg *config) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	created, err := database.New(cfg.db).CreateUser(ctx, database.CreateUserParams{
+	created, err := cfg.db.CreateUser(ctx, database.CreateUserParams{
 		Email:    body.Email,
 		Password: string(passEncrypt),
 	})

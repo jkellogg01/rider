@@ -4,10 +4,12 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+
+	"github.com/jkellogg01/rider/server/database"
 )
 
 type config struct {
-	db *sql.DB
+	db *database.Queries
 }
 
 func NewConfig() *config {
@@ -15,7 +17,7 @@ func NewConfig() *config {
 }
 
 func (cfg *config) WithDB(db *sql.DB) *config {
-	cfg.db = db
+	cfg.db = database.New(db)
 	return cfg
 }
 
