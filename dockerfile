@@ -4,7 +4,10 @@ WORKDIR /app/server
 
 COPY server/go.mod server/go.sum ./
 RUN go mod download
-COPY server/*.go ./
+# NOTE: using a wildcard to match for go files seems to break just about
+# everything, so we'll just copy extra stuff because we throw it out
+# later anyways.
+COPY server .
 RUN CGO_ENABLED=0 GOOS=linux go build -o /rider
 
 FROM server-build AS server-test
@@ -27,12 +30,12 @@ RUN bun run build
 # Purge any files which aren't from the build
 RUN find . -mindepth 1 ! -regex '^./dist\(/.*\)?' -delete
 
-FROM gcr.io/distroless/base-debian11 AS build-release-stage
+FROM alpine AS build-release-stage
 
 WORKDIR /
 
 COPY --from=client-build /app/client/dist /dist
 COPY --from=server-build /rider /rider
 
-EXPOSE 8000
+EXPOSE 8080
 ENTRYPOINT [ "/rider" ]

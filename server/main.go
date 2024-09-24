@@ -3,39 +3,26 @@ package main
 import (
 	"cmp"
 	"fmt"
+	"log"
+	"net/http"
 	"os"
-	"time"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/jkellogg01/rider/server/middleware"
 )
 
 func main() {
-	app := fiber.New()
+	router := http.NewServeMux()
 
-	app.Use(logger.New())
+	dist := http.FileServer(http.Dir("dist"))
+	router.Handle("GET /", dist)
 
-	api := app.Group("/api")
-	api.Get("/users", func(c *fiber.Ctx) error {
-		return c.JSON([]map[string]any{
-			{
-				"id":   1,
-				"name": "Joshua",
-				"age":  23,
-			},
-			{
-				"id":   2,
-				"name": "Natalie",
-				"age":  21,
-			},
-		})
-	})
+	server := http.Server{
+		Addr:    fmt.Sprintf("0.0.0.0:%s", cmp.Or(os.Getenv("PORT"), "8080")),
+		Handler: middleware.Logging(router),
+	}
 
-	const five_minutes = time.Second * 60 * 5
-	app.Static("/", "./dist", fiber.Static{
-		CacheDuration: five_minutes,
-	})
-
-	addr := fmt.Sprintf("0.0.0.0:%s", cmp.Or(os.Getenv("PORT"), "8080"))
-	app.Listen(addr)
+	err := server.ListenAndServe()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
