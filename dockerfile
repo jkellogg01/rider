@@ -4,6 +4,7 @@ WORKDIR /app/server
 
 COPY server/go.mod server/go.sum ./
 RUN go mod download
+
 # NOTE: using a wildcard to match for go files seems to break just about
 # everything, so we'll just copy extra stuff because we throw it out
 # later anyways.
@@ -11,6 +12,11 @@ COPY server .
 RUN CGO_ENABLED=0 GOOS=linux go build -o /rider
 
 FROM server-build AS server-test
+
+# NOTE: I don't know if this is the right place to do this?
+RUN go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+RUN sqlc diff
+
 RUN go test -v ./...
 
 FROM oven/bun:1.1.28-slim AS client-build

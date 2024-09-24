@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/jkellogg01/rider/server/handler"
 	"github.com/jkellogg01/rider/server/middleware"
 	"github.com/pressly/goose"
 
@@ -15,15 +16,21 @@ import (
 )
 
 func main() {
-	_, err := initDB()
+	db, err := initDB()
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	cfg := handler.NewConfig().WithDB(db)
+
 	router := http.NewServeMux()
 
+	api := http.NewServeMux()
+	router.Handle("/api/", http.StripPrefix("/api", api))
+	api.HandleFunc("POST /users", cfg.CreateUser)
+
 	dist := http.FileServer(http.Dir("dist"))
-	router.Handle("GET /", dist)
+	router.Handle("/", dist)
 
 	server := http.Server{
 		Addr:    fmt.Sprintf("0.0.0.0:%s", cmp.Or(os.Getenv("PORT"), "8080")),

@@ -1,8 +1,9 @@
 package middleware
 
 import (
-	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -17,6 +18,7 @@ func (w *wrappedWriter) WriteHeader(statusCode int) {
 }
 
 func Logging(next http.Handler) http.Handler {
+	logger := log.New(os.Stdout, "", 0)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		wrapped := &wrappedWriter{
@@ -24,6 +26,6 @@ func Logging(next http.Handler) http.Handler {
 			statusCode:     http.StatusOK,
 		}
 		next.ServeHTTP(wrapped, r)
-		fmt.Printf("[%d] %s @ %s in %v", wrapped.statusCode, r.Method, r.URL.Path, time.Since(start))
+		logger.Printf("[%d] %s @ %s in %v", wrapped.statusCode, r.Method, r.URL.Path, time.Since(start))
 	})
 }
