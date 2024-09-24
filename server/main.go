@@ -2,15 +2,24 @@ package main
 
 import (
 	"cmp"
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/jkellogg01/rider/server/middleware"
+	"github.com/pressly/goose"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
+	_, err := initDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	router := http.NewServeMux()
 
 	dist := http.FileServer(http.Dir("dist"))
@@ -21,8 +30,27 @@ func main() {
 		Handler: middleware.Logging(router),
 	}
 
-	err := server.ListenAndServe()
+	log.Printf("starting server at %s", server.Addr)
+	err = server.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func initDB() (*sql.DB, error) {
+	dbURL := os.Getenv("DATABASE_URL")
+	db, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		return nil, err
+	}
+	err = goose.SetDialect("postgres")
+	if err != nil {
+		return nil, err
+	}
+	err = goose.Up(db, "sql/schema")
+	if err != nil {
+		return nil, err
+	}
+	err = goose.Status(db, "sql/schema")
+	return db, err
 }

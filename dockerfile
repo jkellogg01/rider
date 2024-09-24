@@ -36,6 +36,7 @@ WORKDIR /
 
 COPY --from=client-build /app/client/dist /dist
 COPY --from=server-build /rider /rider
+COPY server/sql/schema sql/schema
 
 EXPOSE 8080
 ENTRYPOINT [ "/rider" ]

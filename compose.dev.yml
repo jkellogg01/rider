@@ -1,0 +1,30 @@
+services:
+  api_server:
+    image: rider
+    build:
+      context: .
+      dockerfile: ./dockerfile
+    ports:
+      - "8080:8080"
+    links:
+      - db
+    environment:
+      DATABASE_URL: "postgres://postgres:password@db:5432/rider?sslmode=disable"
+    develop:
+      watch:
+        - path: ./server/*
+          action: rebuild
+        - path: ./client/*
+          action: rebuild
+  db:
+    image: postgres
+    restart: always
+    shm_size: 128mb
+    # healthcheck:
+    #   test: ["CMD-SHELL", "pg_isready", "-d", "rider"]
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: rider
+    ports:
+      - "5432:5432"
+
