@@ -13,6 +13,13 @@ declare module "@tanstack/react-router" {
 	}
 }
 
+// HACK: idk there may be a better way to do this but it works!
+const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+if (prefersDark.matches) {
+	const htmlElement = document.getElementsByTagName("html").item(0)!;
+	htmlElement.classList.add("dark");
+}
+
 const rootElement = document.getElementById("root")!;
 if (!rootElement.innerHTML) {
 	const root = createRoot(rootElement);
