@@ -65,7 +65,17 @@ function LoginDialog() {
 			password: "",
 		},
 		onSubmit: async ({ value }) => {
-			console.log(value);
+			const res = await fetch("/api/login", {
+				method: "POST",
+				body: JSON.stringify(value),
+			});
+			if (!res.ok) {
+				console.log(`${res.status} ${res.statusText}`);
+			}
+			const data = await res.json();
+			console.log(data);
+
+			// TODO: redirect to the app entrypoint once it exists
 		},
 	});
 
