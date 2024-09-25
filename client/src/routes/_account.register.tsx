@@ -48,7 +48,7 @@ function RegisterForm() {
 								name={field.name}
 								type="email"
 								label="Email"
-								errors={field.state.meta.errors}
+								errors={field.state.meta.errors.join(", ")}
 							/>
 						)}
 					/>
@@ -59,7 +59,7 @@ function RegisterForm() {
 								name={field.name}
 								type="password"
 								label="Password"
-								errors={field.state.meta.errors}
+								errors={field.state.meta.errors.join(", ")}
 							/>
 						)}
 					/>
@@ -68,14 +68,18 @@ function RegisterForm() {
 						children={([canSubmit, isSubmitting]) => {
 							if (isSubmitting)
 								return (
-									<Button type="submit" disabled className="mt-2">
+									<Button type="submit" disabled className="mt-2 w-full">
 										<Loader2 className="mr-2 size-4 animate-spin" />
 										Please wait...
 									</Button>
 								);
 
 							return (
-								<Button disabled={!canSubmit} type="submit" className="mt-2">
+								<Button
+									disabled={!canSubmit}
+									type="submit"
+									className="mt-2 w-full"
+								>
 									Sign Up
 								</Button>
 							);
