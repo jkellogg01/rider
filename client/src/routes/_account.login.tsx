@@ -16,6 +16,7 @@ export const Route = createFileRoute("/_account/login")({
 });
 
 function LoginForm() {
+	// TODO: needs validation
 	const form = useForm({
 		defaultValues: {
 			email: "",
