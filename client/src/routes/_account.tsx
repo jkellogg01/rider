@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_account")({
 function AccountPage() {
 	// TODO: make a real page here
 	return (
-		<div className="m-auto">
+		<div className="h-dvh content-center">
 			<Outlet />
 		</div>
 	);

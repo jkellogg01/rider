@@ -25,7 +25,7 @@ function LoginForm() {
 	});
 
 	return (
-		<Card className="max-w-sm m-auto">
+		<Card className="max-w-sm mx-auto">
 			<CardHeader>
 				<CardTitle>Log In</CardTitle>
 				{/* TODO: write good copy */}

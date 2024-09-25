@@ -25,7 +25,7 @@ function RegisterForm() {
 	});
 
 	return (
-		<Card className="max-w-sm m-auto">
+		<Card className="max-w-sm mx-auto">
 			<CardHeader>
 				<CardTitle>Register</CardTitle>
 				{/* TODO: write good copy */}
