@@ -16,6 +16,7 @@ import (
 )
 
 func main() {
+	log.SetOutput(os.Stdout)
 	db, err := initDB()
 	if err != nil {
 		log.Fatal(err)
@@ -31,6 +32,25 @@ func main() {
 	api.HandleFunc("POST /login", cfg.AuthenticateUser)
 	api.HandleFunc("GET /me", cfg.GetCurrentUser)
 
+	if os.Getenv("ENVIRONMENT") == "development" {
+		dev := http.NewServeMux()
+		router.Handle("/dev/", http.StripPrefix("/dev", dev))
+		dev.HandleFunc("/reset-db", func(w http.ResponseWriter, r *http.Request) {
+			log.Println("DEV MODE: resetting migrations")
+			err := goose.Reset(db, "sql/schema")
+			if err != nil {
+				w.WriteHeader(500)
+				log.Fatal("database reset failed")
+			}
+			err = goose.Up(db, "sql/schema")
+			if err != nil {
+				w.WriteHeader(500)
+				log.Fatal("database reset failed")
+			}
+			w.WriteHeader(200)
+		})
+	}
+
 	dist := http.FileServer(http.Dir("dist"))
 	router.Handle("/", dist)
 
@@ -39,7 +59,7 @@ func main() {
 		Handler: middleware.Logging(router),
 	}
 
-	fmt.Printf("starting server at %s", server.Addr)
+	log.Printf("starting server at %s", server.Addr)
 	err = server.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
@@ -47,6 +67,7 @@ func main() {
 }
 
 func initDB() (*sql.DB, error) {
+	log.SetOutput(os.Stdout)
 	dbURL := os.Getenv("DATABASE_URL")
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
@@ -56,11 +77,13 @@ func initDB() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	goose.SetLogger(log.New(os.Stdout, "[goose] ", 0))
-	err = goose.Up(db, "sql/schema")
-	if err != nil {
-		return nil, err
+	if os.Getenv("ENVIRONMENT") == "development" {
+		log.Println("DEV MODE: resetting migrations")
+		err = goose.Reset(db, "sql/schema")
+		if err != nil {
+			return nil, err
+		}
 	}
-	err = goose.Status(db, "sql/schema")
+	err = goose.Up(db, "sql/schema")
 	return db, err
 }

@@ -26,6 +26,7 @@ services:
     environment:
       DATABASE_URL: "postgres://postgres:password@db:5432/rider?sslmode=disable"
       JWT_SECRET: "supersecret"
+      ENVIRONMENT: "development"
     develop:
       watch:
         - path: ./server
