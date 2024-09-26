@@ -9,7 +9,8 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { useForm } from "@tanstack/react-form";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/_account/login")({
@@ -17,11 +18,34 @@ export const Route = createFileRoute("/_account/login")({
 });
 
 function LoginForm() {
+	const router = useRouter();
+	const queryClient = useQueryClient();
+
+	const loginMutation = useMutation({
+		mutationFn: async (data: Object) => {
+			const res = await fetch("/api/login", {
+				method: "POST",
+				body: JSON.stringify(data),
+			});
+			if (!res.ok) {
+				throw new Error("something went wrong while logging the user in");
+			}
+			return await res.json();
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: ["current-user"] });
+		},
+	});
 	// TODO: needs validation
 	const form = useForm({
 		defaultValues: {
 			email: "",
 			password: "",
+		},
+		onSubmit: async ({ value }) => {
+			await loginMutation.mutateAsync(value);
+			// TODO: navigate to app index once it exists
+			router.navigate({ to: "/" });
 		},
 	});
 
