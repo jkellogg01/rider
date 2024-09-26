@@ -20,8 +20,10 @@ func (cfg *config) CreateUser(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	bodyDecoder := json.NewDecoder(r.Body)
 	var body struct {
-		Email string `json:"email"`
-		Pass  string `json:"password"`
+		Email      string `json:"email"`
+		Pass       string `json:"password"`
+		GivenName  string `json:"given_name"`
+		FamilyName string `json:"family_name"`
 	}
 	err := bodyDecoder.Decode(&body)
 	if err != nil {
@@ -38,8 +40,10 @@ func (cfg *config) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	created, err := cfg.db.CreateUser(ctx, database.CreateUserParams{
-		Email:    body.Email,
-		Password: string(passEncrypt),
+		Email:      body.Email,
+		Password:   string(passEncrypt),
+		GivenName:  body.GivenName,
+		FamilyName: body.FamilyName,
 	})
 	if err != nil {
 		log.Printf("database error: %v", err)

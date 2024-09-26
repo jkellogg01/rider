@@ -11,19 +11,26 @@ import (
 
 const createUser = `-- name: CreateUser :one
 insert into users (
-  email, password
+  email, password, given_name, family_name
 ) values (
-  $1, $2
-) returning id, created_at, updated_at, email, password
+  $1, $2, $3, $4
+) returning id, created_at, updated_at, email, password, given_name, family_name
 `
 
 type CreateUserParams struct {
-	Email    string
-	Password string
+	Email      string
+	Password   string
+	GivenName  string
+	FamilyName string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.Email, arg.Password)
+	row := q.db.QueryRowContext(ctx, createUser,
+		arg.Email,
+		arg.Password,
+		arg.GivenName,
+		arg.FamilyName,
+	)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -31,6 +38,8 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.UpdatedAt,
 		&i.Email,
 		&i.Password,
+		&i.GivenName,
+		&i.FamilyName,
 	)
 	return i, err
 }
@@ -46,7 +55,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
 }
 
 const getAllUsers = `-- name: GetAllUsers :many
-select id, created_at, updated_at, email, password from users
+select id, created_at, updated_at, email, password, given_name, family_name from users
 order by id
 `
 
@@ -65,6 +74,8 @@ func (q *Queries) GetAllUsers(ctx context.Context) ([]User, error) {
 			&i.UpdatedAt,
 			&i.Email,
 			&i.Password,
+			&i.GivenName,
+			&i.FamilyName,
 		); err != nil {
 			return nil, err
 		}
@@ -80,7 +91,7 @@ func (q *Queries) GetAllUsers(ctx context.Context) ([]User, error) {
 }
 
 const getUser = `-- name: GetUser :one
-select id, created_at, updated_at, email, password from users
+select id, created_at, updated_at, email, password, given_name, family_name from users
 where id = $1 limit 1
 `
 
@@ -93,12 +104,14 @@ func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 		&i.UpdatedAt,
 		&i.Email,
 		&i.Password,
+		&i.GivenName,
+		&i.FamilyName,
 	)
 	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-select id, created_at, updated_at, email, password from users
+select id, created_at, updated_at, email, password, given_name, family_name from users
 where email = $1 limit 1
 `
 
@@ -111,25 +124,35 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.UpdatedAt,
 		&i.Email,
 		&i.Password,
+		&i.GivenName,
+		&i.FamilyName,
 	)
 	return i, err
 }
 
 const updateUser = `-- name: UpdateUser :one
 update users
-  set email = $2, password = $3
+  set email = $2, password = $3, given_name = $4, family_name = $5, updated_at = NOW()
 where id = $1
-returning id, created_at, updated_at, email, password
+returning id, created_at, updated_at, email, password, given_name, family_name
 `
 
 type UpdateUserParams struct {
-	ID       int32
-	Email    string
-	Password string
+	ID         int32
+	Email      string
+	Password   string
+	GivenName  string
+	FamilyName string
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, updateUser, arg.ID, arg.Email, arg.Password)
+	row := q.db.QueryRowContext(ctx, updateUser,
+		arg.ID,
+		arg.Email,
+		arg.Password,
+		arg.GivenName,
+		arg.FamilyName,
+	)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -137,6 +160,8 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.UpdatedAt,
 		&i.Email,
 		&i.Password,
+		&i.GivenName,
+		&i.FamilyName,
 	)
 	return i, err
 }

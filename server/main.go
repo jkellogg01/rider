@@ -77,13 +77,6 @@ func initDB() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	if os.Getenv("ENVIRONMENT") == "development" {
-		log.Println("DEV MODE: resetting migrations")
-		err = goose.Reset(db, "sql/schema")
-		if err != nil {
-			return nil, err
-		}
-	}
 	err = goose.Up(db, "sql/schema")
 	return db, err
 }

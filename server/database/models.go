@@ -9,9 +9,11 @@ import (
 )
 
 type User struct {
-	ID        int32
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Email     string
-	Password  string
+	ID         int32
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	Email      string
+	Password   string
+	GivenName  string
+	FamilyName string
 }
