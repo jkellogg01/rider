@@ -10,6 +10,8 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { useForm } from "@tanstack/react-form";
+import { zodValidator } from "@tanstack/zod-form-adapter";
+import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -71,6 +73,12 @@ function RegisterForm() {
 					<div className="flex flex-row gap-2">
 						<form.Field
 							name="givenName"
+							validatorAdapter={zodValidator()}
+							validators={{
+								onBlur: z
+									.string()
+									.min(1, { message: "please enter a given (first) name" }),
+							}}
 							children={(field) => (
 								<Field
 									name={field.name}
@@ -82,6 +90,12 @@ function RegisterForm() {
 						/>
 						<form.Field
 							name="familyName"
+							validatorAdapter={zodValidator()}
+							validators={{
+								onBlur: z
+									.string()
+									.min(1, { message: "please enter a family (last) name" }),
+							}}
 							children={(field) => (
 								<Field
 									name={field.name}
@@ -94,6 +108,10 @@ function RegisterForm() {
 					</div>
 					<form.Field
 						name="email"
+						validatorAdapter={zodValidator()}
+						validators={{
+							onBlur: z.string().email("please enter a valid email address"),
+						}}
 						children={(field) => (
 							<Field
 								name={field.name}
@@ -105,6 +123,12 @@ function RegisterForm() {
 					/>
 					<form.Field
 						name="password"
+						validatorAdapter={zodValidator()}
+						validators={{
+							onBlur: z
+								.string()
+								.min(6, { message: "please use a longer password" }),
+						}}
 						children={(field) => (
 							<Field
 								name={field.name}
