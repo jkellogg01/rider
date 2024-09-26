@@ -13,7 +13,7 @@ function Index() {
 				<Button size="sm" asChild>
 					<Link to="/login">Log In</Link>
 				</Button>
-				<Button size="sm" asChild variant="outline">
+				<Button size="sm" asChild variant="secondary">
 					<Link to="/register">Sign Up</Link>
 				</Button>
 			</Header>

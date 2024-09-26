@@ -22,8 +22,8 @@ func (cfg *config) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Email      string `json:"email"`
 		Pass       string `json:"password"`
-		GivenName  string `json:"given_name"`
-		FamilyName string `json:"family_name"`
+		GivenName  string `json:"givenName"`
+		FamilyName string `json:"familyName"`
 	}
 	err := bodyDecoder.Decode(&body)
 	if err != nil {

@@ -1,10 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Field } from "@/components/FormField";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
 	CardDescription,
+	CardFooter,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
@@ -19,6 +20,8 @@ function RegisterForm() {
 	// TODO: needs validation
 	const form = useForm({
 		defaultValues: {
+			givenName: "",
+			familyName: "",
 			email: "",
 			password: "",
 		},
@@ -41,6 +44,30 @@ function RegisterForm() {
 						form.handleSubmit();
 					}}
 				>
+					<div className="flex flex-row gap-2">
+						<form.Field
+							name="givenName"
+							children={(field) => (
+								<Field
+									name={field.name}
+									type="text"
+									label="Given Name"
+									errors={field.state.meta.errors.join(", ")}
+								/>
+							)}
+						/>
+						<form.Field
+							name="familyName"
+							children={(field) => (
+								<Field
+									name={field.name}
+									type="text"
+									label="Family Name"
+									errors={field.state.meta.errors.join(", ")}
+								/>
+							)}
+						/>
+					</div>
 					<form.Field
 						name="email"
 						children={(field) => (
@@ -87,6 +114,14 @@ function RegisterForm() {
 					/>
 				</form>
 			</CardContent>
+			<CardFooter>
+				<p className="text-sm leading-none">
+					Already working with us?{" "}
+					<Link to="/login" className="underline">
+						Log In
+					</Link>
+				</p>
+			</CardFooter>
 		</Card>
 	);
 }

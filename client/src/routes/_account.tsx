@@ -8,9 +8,9 @@ export const Route = createFileRoute("/_account")({
 function AccountPage() {
 	// TODO: make a real page here
 	return (
-		<div className="h-dvh overflow-hidden">
+		<div className="h-dvh flex flex-col">
 			<Header />
-			<div className="min-h-[50%] mt-16 content-end px-2">
+			<div className="h-full content-center px-2">
 				<Outlet />
 			</div>
 		</div>

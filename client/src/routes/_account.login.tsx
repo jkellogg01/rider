@@ -4,6 +4,7 @@ import {
 	Card,
 	CardContent,
 	CardDescription,
+	CardFooter,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
@@ -85,14 +86,16 @@ function LoginForm() {
 							);
 						}}
 					/>
-					<p className="mt-4 text-sm leading-none">
-						Don't have an account?{" "}
-						<Link to="/register" className="underline">
-							Sign Up
-						</Link>
-					</p>
 				</form>
 			</CardContent>
+			<CardFooter>
+				<p className="text-sm leading-none">
+					Don't have an account?{" "}
+					<Link to="/register" className="underline">
+						Sign Up
+					</Link>
+				</p>
+			</CardFooter>
 		</Card>
 	);
 }
