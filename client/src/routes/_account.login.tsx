@@ -9,6 +9,8 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { useForm } from "@tanstack/react-form";
+import { zodValidator } from "@tanstack/zod-form-adapter";
+import { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
@@ -68,6 +70,10 @@ function LoginForm() {
 				>
 					<form.Field
 						name="email"
+						validatorAdapter={zodValidator()}
+						validators={{
+							onBlur: z.string().email("please enter a valid email address"),
+						}}
 						children={(field) => (
 							<Field
 								name={field.name}
