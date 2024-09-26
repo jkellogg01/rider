@@ -1,4 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import Header from "@/components/Header";
+import { Button } from "@/components/ui/button";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
 	component: Index,
@@ -6,8 +8,15 @@ export const Route = createFileRoute("/")({
 
 function Index() {
 	return (
-		<div className="p-2">
-			<h3>Note to self: make a landing page</h3>
-		</div>
+		<>
+			<Header>
+				<Button size="sm" asChild>
+					<Link to="/login">Log In</Link>
+				</Button>
+				<Button size="sm" asChild variant="outline">
+					<Link to="/register">Sign Up</Link>
+				</Button>
+			</Header>
+		</>
 	);
 }

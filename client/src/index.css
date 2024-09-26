@@ -1,6 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+	font-family: Inter;
+	src: url("/fonts/Inter-VariableFont_opsz,wght.ttf");
+	font-style: normal;
+}
+
+@font-face {
+	font-family: Inter;
+	src: url("/fonts/Inter-Italic-VariableFont_opsz,wght.ttf");
+	font-style: italic;
+}
+
 @layer base {
 	:root {
 		--background: 0 0% 100%;
