@@ -21,16 +21,16 @@ export const Route = createFileRoute("/_account/register")({
 
 function RegisterForm() {
 	const router = useRouter();
-
 	const queryClient = useQueryClient();
+
 	const registerMutation = useMutation({
 		mutationFn: async (data: Object) => {
-			const res = await fetch("/api/register", {
+			const res = await fetch("/api/users", {
 				method: "POST",
 				body: JSON.stringify(data),
 			});
 			if (!res.ok) {
-				throw new Error("something went wrong while registering the user.");
+				throw new Error("something went wrong while registering the user");
 			}
 			return await res.json();
 		},
@@ -39,7 +39,6 @@ function RegisterForm() {
 		},
 	});
 
-	// TODO: needs validation
 	const form = useForm({
 		defaultValues: {
 			givenName: "",
@@ -52,6 +51,7 @@ function RegisterForm() {
 			// TODO: navigate to app index once it exists
 			router.navigate({ to: "/" });
 		},
+		validatorAdapter: zodValidator(),
 	});
 
 	return (
@@ -73,7 +73,6 @@ function RegisterForm() {
 					<div className="flex flex-row gap-2">
 						<form.Field
 							name="givenName"
-							validatorAdapter={zodValidator()}
 							validators={{
 								onBlur: z
 									.string()
@@ -84,13 +83,15 @@ function RegisterForm() {
 									name={field.name}
 									type="text"
 									label="Given Name"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(event) => field.handleChange(event.target.value)}
 									errors={field.state.meta.errors.join(", ")}
 								/>
 							)}
 						/>
 						<form.Field
 							name="familyName"
-							validatorAdapter={zodValidator()}
 							validators={{
 								onBlur: z
 									.string()
@@ -101,6 +102,9 @@ function RegisterForm() {
 									name={field.name}
 									type="text"
 									label="Family Name"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(event) => field.handleChange(event.target.value)}
 									errors={field.state.meta.errors.join(", ")}
 								/>
 							)}
@@ -108,7 +112,6 @@ function RegisterForm() {
 					</div>
 					<form.Field
 						name="email"
-						validatorAdapter={zodValidator()}
 						validators={{
 							onBlur: z.string().email("please enter a valid email address"),
 						}}
@@ -117,13 +120,15 @@ function RegisterForm() {
 								name={field.name}
 								type="email"
 								label="Email"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
 								errors={field.state.meta.errors.join(", ")}
 							/>
 						)}
 					/>
 					<form.Field
 						name="password"
-						validatorAdapter={zodValidator()}
 						validators={{
 							onBlur: z
 								.string()
@@ -134,6 +139,9 @@ function RegisterForm() {
 								name={field.name}
 								type="password"
 								label="Password"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
 								errors={field.state.meta.errors.join(", ")}
 							/>
 						)}

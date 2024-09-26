@@ -38,7 +38,7 @@ function LoginForm() {
 			queryClient.invalidateQueries({ queryKey: ["current-user"] });
 		},
 	});
-	// TODO: needs validation
+
 	const form = useForm({
 		defaultValues: {
 			email: "",
@@ -79,6 +79,9 @@ function LoginForm() {
 								name={field.name}
 								type="email"
 								label="Email"
+								value={field.state.value}
+								onChange={(event) => field.handleChange(event.target.value)}
+								onBlur={field.handleBlur}
 								errors={field.state.meta.errors.join(", ")}
 							/>
 						)}
@@ -90,6 +93,8 @@ function LoginForm() {
 								name={field.name}
 								type="password"
 								label="Password"
+								value={field.state.value}
+								onChange={(event) => field.handleChange(event.target.value)}
 								errors={field.state.meta.errors.join(", ")}
 							/>
 						)}
