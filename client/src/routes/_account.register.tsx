@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { Field } from "@/components/FormField";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,12 +11,32 @@ import {
 } from "@/components/ui/card";
 import { useForm } from "@tanstack/react-form";
 import { Loader2 } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_account/register")({
 	component: RegisterForm,
 });
 
 function RegisterForm() {
+	const router = useRouter();
+
+	const queryClient = useQueryClient();
+	const registerMutation = useMutation({
+		mutationFn: async (data: Object) => {
+			const res = await fetch("/api/register", {
+				method: "POST",
+				body: JSON.stringify(data),
+			});
+			if (!res.ok) {
+				throw new Error("something went wrong while registering the user.");
+			}
+			return await res.json();
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: ["current-user"] });
+		},
+	});
+
 	// TODO: needs validation
 	const form = useForm({
 		defaultValues: {
@@ -25,13 +45,17 @@ function RegisterForm() {
 			email: "",
 			password: "",
 		},
+		onSubmit: async ({ value }) => {
+			await registerMutation.mutateAsync(value);
+			// TODO: navigate to app index once it exists
+			router.navigate({ to: "/" });
+		},
 	});
 
 	return (
 		<Card className="max-w-sm mx-auto">
 			<CardHeader>
 				<CardTitle>Register</CardTitle>
-				{/* TODO: write good copy */}
 				<CardDescription>
 					Create a new account in order to get started with Rider
 				</CardDescription>
