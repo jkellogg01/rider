@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -51,9 +52,28 @@ func (cfg *config) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	accessToken, err := generateAccessToken(created.ID).SignedString(os.Getenv("JWT_SECRET"))
+	if err != nil {
+		log.Printf("failed to sign access token: %v", err)
+	} else {
+		authCookie := http.Cookie{
+			Name:        "rider-access",
+			Value:       accessToken,
+			Path:        "/",
+			Quoted:      false,
+			Secure:      true,
+			HttpOnly:    false,
+			SameSite:    http.SameSiteLaxMode,
+			Partitioned: true,
+		}
+		http.SetCookie(w, &authCookie)
+	}
+
 	respondWithJSON(w, http.StatusCreated, map[string]any{
-		"id":    created.ID,
-		"email": created.Email,
+		"id":         created.ID,
+		"email":      created.Email,
+		"givenName":  created.GivenName,
+		"familyName": created.FamilyName,
 	})
 }
 
@@ -72,11 +92,12 @@ func (cfg *config) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, err := cfg.db.GetUserByEmail(ctx, body.Email)
-	if err != nil {
+	if errors.Is(err, sql.ErrNoRows) {
 		log.Printf("failed to find user: %v", err)
-		// NOTE: I feel like a 404 would make sense here but auth errors should
-		// maybe be more vague so we send 400 instead
-		w.WriteHeader(http.StatusForbidden)
+		w.WriteHeader(http.StatusNotFound)
+	} else if err != nil {
+		log.Printf("unexpected DB error: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -90,23 +111,25 @@ func (cfg *config) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 	accessToken, err := generateAccessToken(user.ID).SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		log.Printf("failed to sign access token: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+	} else {
+		authCookie := http.Cookie{
+			Name:        "rider-access",
+			Value:       accessToken,
+			Path:        "/",
+			Quoted:      false,
+			Secure:      true,
+			HttpOnly:    false,
+			SameSite:    http.SameSiteLaxMode,
+			Partitioned: true,
+		}
+		http.SetCookie(w, &authCookie)
 	}
-	authCookie := http.Cookie{
-		Name:        "rider-access",
-		Value:       accessToken,
-		Quoted:      false,
-		Secure:      true,
-		HttpOnly:    true,
-		SameSite:    http.SameSiteLaxMode,
-		Partitioned: true,
-	}
-	http.SetCookie(w, &authCookie)
 
-	respondWithJSON(w, http.StatusCreated, map[string]any{
-		"id":    user.ID,
-		"email": user.Email,
+	respondWithJSON(w, http.StatusOK, map[string]any{
+		"id":         user.ID,
+		"email":      user.Email,
+		"givenName":  user.GivenName,
+		"familyName": user.FamilyName,
 	})
 }
 
@@ -144,13 +167,15 @@ func (cfg *config) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	respondWithJSON(w, http.StatusOK, map[string]any{
-		"id":    user.ID,
-		"email": user.Email,
+		"id":         user.ID,
+		"email":      user.Email,
+		"givenName":  user.GivenName,
+		"familyName": user.FamilyName,
 	})
 }
 
 var (
-	ErrIssuerInvalid = errors.New("this is not a chirpy access token")
+	ErrIssuerInvalid = errors.New("this is not a rider access token")
 )
 
 func generateAccessToken(id int32) *jwt.Token {

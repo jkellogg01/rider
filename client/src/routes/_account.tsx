@@ -1,33 +1,23 @@
 import Header from "@/components/Header";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_account")({
-	beforeLoad: async ({ context }) => {
-		console.debug("before load");
-		const queryClient = context.queryClient;
-		try {
-			const user = await queryClient.ensureQueryData({
-				queryKey: ["current-user"],
-				queryFn: async () => {
-					const res = await fetch("/api/me");
-					if (!res.ok) {
-						throw new Error(
-							`${res.status} ${res.statusText}: something went wrong while fetching the current user`,
-						);
-					}
-					return await res.json();
-				},
-				staleTime: 1000 * 60 * 15,
-			});
-			return { user };
-		} catch (err) {
-			console.error(err);
-			return { user: null };
-		}
-	},
 	component: () => {
-		const { user } = Route.useRouteContext();
-		if (user) return <Navigate to="/" />;
+		const { status } = useQuery({
+			retry: 0,
+			queryKey: ["current-user"],
+			queryFn: async () => {
+				const res = await fetch("/api/me");
+				if (!res.ok) {
+					throw new Error("could not fetch the current user");
+				}
+				return await res.json();
+			},
+		});
+
+		if (status === "success") return <Navigate to="/" />;
+
 		return <AccountPage />;
 	},
 });

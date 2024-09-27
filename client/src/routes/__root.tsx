@@ -24,7 +24,7 @@ function Root() {
 	return (
 		<>
 			<Outlet />
-			{/*<TanStackRouterDevtools />*/}
+			<TanStackRouterDevtools />
 		</>
 	);
 }
