@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
+import { getCurrentUser } from "@/lib/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
@@ -21,15 +22,7 @@ function Index() {
 		// FIXME: this request shouldn't refetch for 15 minutes,
 		// but it refetches on all page loads
 		staleTime: 1000 * 60 * 15,
-		queryFn: async () => {
-			const res = await fetch("/api/me");
-			if (!res.ok) {
-				throw new Error(
-					`${res.status} ${res.statusText}: something went wrong while fetching the current user`,
-				);
-			}
-			return await res.json();
-		},
+		queryFn: getCurrentUser,
 	});
 
 	if (error || isPending || !data)

@@ -1,23 +1,26 @@
 import Header from "@/components/Header";
-import { useQuery } from "@tanstack/react-query";
+import { getCurrentUser } from "@/lib/api";
 import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_account")({
+	beforeLoad: async ({ context }) => {
+		const queryClient = context.queryClient;
+		const user = await queryClient
+			.fetchQuery({
+				queryKey: ["current-user"],
+				queryFn: getCurrentUser,
+			})
+			.catch(() => {
+				return { user: null };
+			});
+		return { user };
+	},
 	component: () => {
-		const { status } = useQuery({
-			retry: 0,
-			queryKey: ["current-user"],
-			queryFn: async () => {
-				const res = await fetch("/api/me");
-				if (!res.ok) {
-					throw new Error("could not fetch the current user");
-				}
-				return await res.json();
-			},
-		});
-
-		if (status === "success") return <Navigate to="/" />;
-
+		const context = Route.useRouteContext();
+		if (context.user) {
+			// TODO: this should navigate to the app entry point once it exists
+			return <Navigate to="/" />;
+		}
 		return <AccountPage />;
 	},
 });

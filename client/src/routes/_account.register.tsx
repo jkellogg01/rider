@@ -14,6 +14,7 @@ import { zodValidator } from "@tanstack/zod-form-adapter";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createUserSchema } from "@/lib/api";
 
 export const Route = createFileRoute("/_account/register")({
 	component: RegisterForm,
@@ -74,9 +75,7 @@ function RegisterForm() {
 						<form.Field
 							name="givenName"
 							validators={{
-								onBlur: z
-									.string()
-									.min(1, { message: "please enter a given (first) name" }),
+								onBlur: createUserSchema.pick({ givenName: true }),
 							}}
 							children={(field) => (
 								<Field
@@ -93,9 +92,7 @@ function RegisterForm() {
 						<form.Field
 							name="familyName"
 							validators={{
-								onBlur: z
-									.string()
-									.min(1, { message: "please enter a family (last) name" }),
+								onBlur: createUserSchema.pick({ familyName: true }),
 							}}
 							children={(field) => (
 								<Field
@@ -113,7 +110,7 @@ function RegisterForm() {
 					<form.Field
 						name="email"
 						validators={{
-							onBlur: z.string().email("please enter a valid email address"),
+							onBlur: createUserSchema.pick({ email: true }),
 						}}
 						children={(field) => (
 							<Field
@@ -130,9 +127,7 @@ function RegisterForm() {
 					<form.Field
 						name="password"
 						validators={{
-							onBlur: z
-								.string()
-								.min(6, { message: "please use a longer password" }),
+							onBlur: createUserSchema.pick({ password: true }),
 						}}
 						children={(field) => (
 							<Field
