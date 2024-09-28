@@ -46,8 +46,7 @@ function LoginForm() {
 		},
 		onSubmit: async ({ value }) => {
 			await loginMutation.mutateAsync(value);
-			// TODO: navigate to app index once it exists
-			router.navigate({ to: "/" });
+			router.navigate({ to: "/app" });
 		},
 	});
 

@@ -1,4 +1,4 @@
-import Header from "@/components/Header";
+import { Header, BrandMark } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -29,31 +29,37 @@ function Index() {
 		return (
 			<>
 				<Header>
-					<Button size="sm" asChild>
-						<Link to="/login">Log In</Link>
-					</Button>
-					<Button size="sm" asChild variant="secondary">
-						<Link to="/register">Sign Up</Link>
-					</Button>
+					<BrandMark />
+					<div className="flex flex-row gap-2">
+						<Button size="sm" asChild>
+							<Link to="/login">Log In</Link>
+						</Button>
+						<Button size="sm" asChild variant="secondary">
+							<Link to="/register">Sign Up</Link>
+						</Button>
+					</div>
 				</Header>
 			</>
 		);
 
 	return (
 		<Header>
-			<Button size="sm" asChild>
-				<Link to="/">Hello, {data.givenName}!</Link>
-			</Button>
-			<Button
-				size="sm"
-				variant="outline"
-				onClick={() => {
-					deleteCookies("rider-access", "rider-refresh");
-					queryClient.invalidateQueries({ queryKey: ["current-user"] });
-				}}
-			>
-				Log Out
-			</Button>
+			<BrandMark />
+			<div className="flex flex-row gap-2">
+				<Button size="sm" asChild>
+					<Link to="/app">Hello, {data.givenName}!</Link>
+				</Button>
+				<Button
+					size="sm"
+					variant="outline"
+					onClick={() => {
+						deleteCookies("rider-access", "rider-refresh");
+						queryClient.invalidateQueries({ queryKey: ["current-user"] });
+					}}
+				>
+					Log Out
+				</Button>
+			</div>
 		</Header>
 	);
 }

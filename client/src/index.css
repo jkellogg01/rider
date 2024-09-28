@@ -4,13 +4,13 @@
 
 @font-face {
 	font-family: Inter;
-	src: url("/fonts/Inter-VariableFont_opsz,wght.ttf");
+	src: url("/fonts/inter.ttf");
 	font-style: normal;
 }
 
 @font-face {
 	font-family: Inter;
-	src: url("/fonts/Inter-Italic-VariableFont_opsz,wght.ttf");
+	src: url("/fonts/inter-italic.ttf");
 	font-style: italic;
 }
 

@@ -49,8 +49,7 @@ function RegisterForm() {
 		},
 		onSubmit: async ({ value }) => {
 			await registerMutation.mutateAsync(value);
-			// TODO: navigate to app index once it exists
-			router.navigate({ to: "/" });
+			router.navigate({ to: "/app" });
 		},
 		validatorAdapter: zodValidator(),
 	});

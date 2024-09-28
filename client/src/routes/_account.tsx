@@ -1,35 +1,28 @@
-import Header from "@/components/Header";
+import { Header, BrandMark } from "@/components/Header";
 import { getCurrentUser } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_account")({
-	beforeLoad: async ({ context }) => {
-		const queryClient = context.queryClient;
-		const user = await queryClient
-			.fetchQuery({
-				queryKey: ["current-user"],
-				queryFn: getCurrentUser,
-			})
-			.catch(() => {
-				return { user: null };
-			});
-		return { user };
-	},
-	component: () => {
-		const context = Route.useRouteContext();
-		if (context.user) {
-			// TODO: this should navigate to the app entry point once it exists
-			return <Navigate to="/" />;
-		}
-		return <AccountPage />;
-	},
+	component: AccountPage,
 });
 
 function AccountPage() {
+	const result = useQuery({
+		queryKey: ["current-user"],
+		queryFn: getCurrentUser,
+	});
+	if (result.data && !result.isStale) {
+		return <Navigate to="/app" />;
+	}
+
 	// TODO: make a real page here
 	return (
 		<div className="h-dvh flex flex-col">
-			<Header />
+			<Header>
+				<BrandMark />
+				<div />
+			</Header>
 			<div className="h-full content-center px-2">
 				<Outlet />
 			</div>

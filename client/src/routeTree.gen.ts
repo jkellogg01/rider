@@ -11,12 +11,19 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as AppImport } from './routes/app'
 import { Route as AccountImport } from './routes/_account'
 import { Route as IndexImport } from './routes/index'
+import { Route as AppIndexImport } from './routes/app.index'
 import { Route as AccountRegisterImport } from './routes/_account.register'
 import { Route as AccountLoginImport } from './routes/_account.login'
 
 // Create/Update Routes
+
+const AppRoute = AppImport.update({
+  path: '/app',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const AccountRoute = AccountImport.update({
   id: '/_account',
@@ -26,6 +33,11 @@ const AccountRoute = AccountImport.update({
 const IndexRoute = IndexImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AppIndexRoute = AppIndexImport.update({
+  path: '/',
+  getParentRoute: () => AppRoute,
 } as any)
 
 const AccountRegisterRoute = AccountRegisterImport.update({
@@ -56,6 +68,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountImport
       parentRoute: typeof rootRoute
     }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppImport
+      parentRoute: typeof rootRoute
+    }
     '/_account/login': {
       id: '/_account/login'
       path: '/login'
@@ -69,6 +88,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/register'
       preLoaderRoute: typeof AccountRegisterImport
       parentRoute: typeof AccountImport
+    }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexImport
+      parentRoute: typeof AppImport
     }
   }
 }
@@ -88,11 +114,23 @@ const AccountRouteChildren: AccountRouteChildren = {
 const AccountRouteWithChildren =
   AccountRoute._addFileChildren(AccountRouteChildren)
 
+interface AppRouteChildren {
+  AppIndexRoute: typeof AppIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppIndexRoute: AppIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '': typeof AccountRouteWithChildren
+  '/app': typeof AppRouteWithChildren
   '/login': typeof AccountLoginRoute
   '/register': typeof AccountRegisterRoute
+  '/app/': typeof AppIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -100,33 +138,45 @@ export interface FileRoutesByTo {
   '': typeof AccountRouteWithChildren
   '/login': typeof AccountLoginRoute
   '/register': typeof AccountRegisterRoute
+  '/app': typeof AppIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/_account': typeof AccountRouteWithChildren
+  '/app': typeof AppRouteWithChildren
   '/_account/login': typeof AccountLoginRoute
   '/_account/register': typeof AccountRegisterRoute
+  '/app/': typeof AppIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '' | '/login' | '/register'
+  fullPaths: '/' | '' | '/app' | '/login' | '/register' | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '' | '/login' | '/register'
-  id: '__root__' | '/' | '/_account' | '/_account/login' | '/_account/register'
+  to: '/' | '' | '/login' | '/register' | '/app'
+  id:
+    | '__root__'
+    | '/'
+    | '/_account'
+    | '/app'
+    | '/_account/login'
+    | '/_account/register'
+    | '/app/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AccountRoute: typeof AccountRouteWithChildren
+  AppRoute: typeof AppRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRouteWithChildren,
+  AppRoute: AppRouteWithChildren,
 }
 
 export const routeTree = rootRoute
@@ -142,7 +192,8 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/_account"
+        "/_account",
+        "/app"
       ]
     },
     "/": {
@@ -155,6 +206,12 @@ export const routeTree = rootRoute
         "/_account/register"
       ]
     },
+    "/app": {
+      "filePath": "app.tsx",
+      "children": [
+        "/app/"
+      ]
+    },
     "/_account/login": {
       "filePath": "_account.login.tsx",
       "parent": "/_account"
@@ -162,6 +219,10 @@ export const routeTree = rootRoute
     "/_account/register": {
       "filePath": "_account.register.tsx",
       "parent": "/_account"
+    },
+    "/app/": {
+      "filePath": "app.index.tsx",
+      "parent": "/app"
     }
   }
 }
