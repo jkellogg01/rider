@@ -28,8 +28,8 @@ const fakeMessages: Array<{ name: string; body: string; email: string }> = [
 	},
 	{
 		name: "Thomas D'example",
-		email: "thomas@notemptyspace.net",
-		body: "Your set was sick last night! Thanks for letting me borrow your amp. I think we could do pretty well if we went on tour together.",
+		email: "thomas@nonemptyspace.net",
+		body: "This is just going to be a really really long message, the entire point of this message is to make the text wrap for at least three lines. What I really want more than anything is for the font to wrap for three lines so that I can see what it looks like when there's a really long and substantive message in my inbox",
 	},
 ];
 
@@ -67,14 +67,16 @@ function AppIndex() {
 							<TableBody>
 								{fakeMessages.map(({ name, email, body }) => (
 									<TableRow>
-										<TableCell>
+										<TableCell className="align-top">
 											<div className="font-medium">{name}</div>
 											<div className="text-sm text-muted-foreground">
 												{email}
 											</div>
 										</TableCell>
-										<TableCell>{preview(body)}</TableCell>
-										<TableCell>
+										<TableCell className="max-w-prose align-top">
+											{preview(body, 250)}
+										</TableCell>
+										<TableCell className="align-top">
 											<Button variant="outline" size="sm">
 												View
 											</Button>
@@ -90,8 +92,8 @@ function AppIndex() {
 	);
 }
 
-function preview(body: string) {
-	if (body.length < 65) {
+function preview(body: string, length: number = 65) {
+	if (body.length < length) {
 		return body;
 	}
 
@@ -100,11 +102,10 @@ function preview(body: string) {
 	let sum = 0;
 	while (true) {
 		sum += words[idx].length;
-		if (sum > 62) {
+		if (sum > length - 3) {
 			break;
 		}
-		// compensate for the space
-		sum++;
+		sum++; // compensates for a space
 		idx++;
 	}
 	return words.slice(0, idx).join(" ").concat("...");
