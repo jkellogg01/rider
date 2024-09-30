@@ -1,4 +1,4 @@
-import { Header } from "@/components/Header";
+import { BrandMark, Header } from "@/components/Header";
 import { getCurrentUser } from "@/lib/api";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
@@ -18,7 +18,9 @@ export const Route = createFileRoute("/app")({
 function App() {
 	return (
 		<>
-			<Header />
+			<Header>
+				<BrandMark />
+			</Header>
 			<div className="mx-auto container">
 				<Outlet />
 			</div>

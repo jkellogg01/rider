@@ -21,7 +21,6 @@ function AccountPage() {
 		<div className="h-dvh flex flex-col">
 			<Header>
 				<BrandMark />
-				<div />
 			</Header>
 			<div className="h-full content-center px-2">
 				<Outlet />
