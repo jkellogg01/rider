@@ -5,7 +5,6 @@
 package database
 
 import (
-	"database/sql"
 	"time"
 )
 
@@ -20,16 +19,17 @@ type Account struct {
 }
 
 type AccountBand struct {
-	ID        int32
-	AccountID sql.NullInt32
-	BandID    sql.NullInt32
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	IsAdmin   bool
+	ID             int32
+	AccountID      int32
+	BandID         int32
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	AccountIsAdmin bool
 }
 
 type Band struct {
 	ID        int32
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	Name      string
 }

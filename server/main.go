@@ -29,7 +29,7 @@ func main() {
 	api := http.NewServeMux()
 	router.Handle("/api/", http.StripPrefix("/api", api))
 	api.HandleFunc("POST /users", cfg.CreateUser)
-	api.HandleFunc("POST /login", cfg.AuthenticateUser)
+	api.HandleFunc("POST /login", cfg.LoginUser)
 	api.HandleFunc("GET /me", cfg.GetCurrentUser)
 
 	if os.Getenv("ENVIRONMENT") == "development" {

@@ -8,8 +8,8 @@ CREATE TABLE band (
 
 CREATE TABLE account_band (
   id SERIAL PRIMARY KEY,
-  account_id int REFERENCES account (id),
-  band_id int REFERENCES band (id),
+  account_id int NOT NULL REFERENCES account (id),
+  band_id int NOT NULL REFERENCES band (id),
   created_at timestamp NOT NULL DEFAULT NOW(),
   updated_at timestamp NOT NULL DEFAULT NOW(),
   account_is_admin boolean NOT NULL DEFAULT FALSE,

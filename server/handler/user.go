@@ -29,14 +29,14 @@ func (cfg *config) CreateUser(w http.ResponseWriter, r *http.Request) {
 	err := bodyDecoder.Decode(&body)
 	if err != nil {
 		log.Printf("failed to decode request body: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		respondWithError(w, http.StatusInternalServerError, "failed to decode request body")
 		return
 	}
 
 	passEncrypt, err := bcrypt.GenerateFromPassword([]byte(body.Pass), bcrypt.DefaultCost)
 	if err != nil {
 		log.Printf("failed to encrypt password: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		respondWithError(w, http.StatusInternalServerError, "failed to encrypt password")
 		return
 	}
 
@@ -47,8 +47,8 @@ func (cfg *config) CreateUser(w http.ResponseWriter, r *http.Request) {
 		FamilyName: body.FamilyName,
 	})
 	if err != nil {
-		log.Printf("database error: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		log.Printf("failed to write to database: %v", err)
+		respondWithError(w, http.StatusInternalServerError, "failed to write to database")
 		return
 	}
 
@@ -77,7 +77,7 @@ func (cfg *config) CreateUser(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (cfg *config) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
+func (cfg *config) LoginUser(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	bodyDecoder := json.NewDecoder(r.Body)
 	var body struct {
@@ -87,24 +87,25 @@ func (cfg *config) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 	err := bodyDecoder.Decode(&body)
 	if err != nil {
 		log.Printf("failed to decode request body: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		respondWithError(w, http.StatusInternalServerError, "failed to decode request body")
 		return
 	}
 
 	user, err := cfg.db.GetAccountByEmail(ctx, body.Email)
 	if errors.Is(err, sql.ErrNoRows) {
 		log.Printf("failed to find user: %v", err)
-		w.WriteHeader(http.StatusNotFound)
+		respondWithError(w, http.StatusNotFound, "failed to find user")
+		return
 	} else if err != nil {
 		log.Printf("unexpected DB error: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		respondWithError(w, http.StatusInternalServerError, "unexpected database error")
 		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Pass))
 	if err != nil {
 		log.Printf("failed to authenticate user: %v", err)
-		w.WriteHeader(http.StatusForbidden)
+		respondWithError(w, http.StatusUnauthorized, "failed to authenticate user")
 		return
 	}
 
@@ -139,31 +140,34 @@ func (cfg *config) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// TODO: when we have refresh tokens this will mean we check that here
 		log.Printf("failed to fetch access token: %v", err)
-		w.WriteHeader(http.StatusForbidden)
+		respondWithError(w, http.StatusUnauthorized, "failed to fetch access token")
 		return
 	}
 	accessToken, err := validateAccessToken(accessCookie.Value)
 	if err != nil {
 		log.Printf("failed to validate access token: %v", err)
-		w.WriteHeader(http.StatusForbidden)
+		respondWithError(w, http.StatusUnauthorized, "failed to validate access token")
 		return
 	}
 	subject, err := accessToken.Claims.GetSubject()
 	if err != nil {
 		log.Printf("failed to fetch subject from access token: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		respondWithError(w, http.StatusInternalServerError, "failed to fetch access token subject")
 		return
 	}
 	id, err := strconv.Atoi(subject)
 	if err != nil {
 		log.Printf("failed to parse id: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		respondWithError(w, http.StatusInternalServerError, "failed to parse user id")
 		return
 	}
 	user, err := cfg.db.GetAccount(ctx, int32(id))
-	if err != nil {
+	if errors.Is(err, sql.ErrNoRows) {
+		respondWithError(w, http.StatusNotFound, "failed to find user")
+		return
+	} else if err != nil {
 		log.Printf("database error: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		respondWithError(w, http.StatusInternalServerError, "unexpected database error")
 		return
 	}
 	respondWithJSON(w, http.StatusOK, map[string]any{
