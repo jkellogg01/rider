@@ -1,19 +1,4 @@
 services:
-  # NOTE: it doesn't seem like docker plays very nicely with vite
-  # vite_server:
-  #   build:
-  #     dockerfile: client/vite.dockerfile
-  #   ports:
-  #     - "3000:3000"
-  #   develop:
-  #     watch:
-  #       - path: ./client
-  #         target: .
-  #         action: sync+restart
-  #         ignore:
-  #           - node_modules
-  #       - path: client/package.json
-  #         action: rebuild
   api_server:
     image: rider
     build:

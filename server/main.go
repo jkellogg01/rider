@@ -33,7 +33,7 @@ func main() {
 	api.HandleFunc("POST /login", cfg.LoginUser)
 
 	authed := http.NewServeMux()
-	router.Handle("/", authentication.AuthenticateUser(api))
+	api.Handle("/", authentication.AuthenticateUser(authed))
 	authed.HandleFunc("GET /me", cfg.GetCurrentUser)
 	authed.HandleFunc("GET /bands", cfg.GetUserBands)
 	authed.HandleFunc("POST /bands", cfg.CreateBand)
