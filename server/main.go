@@ -9,7 +9,8 @@ import (
 	"os"
 
 	"github.com/jkellogg01/rider/server/handler"
-	"github.com/jkellogg01/rider/server/middleware"
+	"github.com/jkellogg01/rider/server/middleware/authentication"
+	"github.com/jkellogg01/rider/server/middleware/logging"
 	"github.com/pressly/goose"
 
 	_ "github.com/lib/pq"
@@ -30,7 +31,12 @@ func main() {
 	router.Handle("/api/", http.StripPrefix("/api", api))
 	api.HandleFunc("POST /users", cfg.CreateUser)
 	api.HandleFunc("POST /login", cfg.LoginUser)
-	api.HandleFunc("GET /me", cfg.GetCurrentUser)
+
+	authed := http.NewServeMux()
+	router.Handle("/", authentication.AuthenticateUser(api))
+	authed.HandleFunc("GET /me", cfg.GetCurrentUser)
+	authed.HandleFunc("GET /bands", cfg.GetUserBands)
+	authed.HandleFunc("POST /bands", cfg.CreateBand)
 
 	if os.Getenv("ENVIRONMENT") == "development" {
 		dev := http.NewServeMux()
@@ -54,9 +60,10 @@ func main() {
 	dist := http.FileServer(http.Dir("dist"))
 	router.Handle("/", dist)
 
+	l := logging.New()
 	server := http.Server{
 		Addr:    fmt.Sprintf("0.0.0.0:%s", cmp.Or(os.Getenv("PORT"), "8080")),
-		Handler: middleware.Logging(router),
+		Handler: l.Logging(router),
 	}
 
 	log.Printf("starting server at %s", server.Addr)

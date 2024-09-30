@@ -28,7 +28,7 @@ func (cfg *config) GetUserBands(w http.ResponseWriter, r *http.Request) {
 	RespondWithJSON(w, http.StatusOK, bands)
 }
 
-func (cfg *config) CreateUserBand(w http.ResponseWriter, r *http.Request) {
+func (cfg *config) CreateBand(w http.ResponseWriter, r *http.Request) {
 	id, ok := r.Context().Value("current-user").(int32)
 	if !ok {
 		RespondWithError(w, http.StatusBadRequest, "invalid or missing user id")
