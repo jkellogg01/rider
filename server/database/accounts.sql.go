@@ -18,10 +18,10 @@ insert into account (
 `
 
 type CreateAccountParams struct {
-	Email      string
-	Password   string
-	GivenName  string
-	FamilyName string
+	Email      string `json:"email"`
+	Password   string `json:"password"`
+	GivenName  string `json:"given_name"`
+	FamilyName string `json:"family_name"`
 }
 
 func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error) {
@@ -138,11 +138,11 @@ returning id, created_at, updated_at, given_name, family_name, email, password
 `
 
 type UpdateAccountParams struct {
-	ID         int32
-	Email      string
-	Password   string
-	GivenName  string
-	FamilyName string
+	ID         int32  `json:"id"`
+	Email      string `json:"email"`
+	Password   string `json:"password"`
+	GivenName  string `json:"given_name"`
+	FamilyName string `json:"family_name"`
 }
 
 func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error) {

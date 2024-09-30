@@ -9,27 +9,27 @@ import (
 )
 
 type Account struct {
-	ID         int32
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-	GivenName  string
-	FamilyName string
-	Email      string
-	Password   string
+	ID         int32     `json:"id"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+	GivenName  string    `json:"given_name"`
+	FamilyName string    `json:"family_name"`
+	Email      string    `json:"email"`
+	Password   string    `json:"password"`
 }
 
 type AccountBand struct {
-	ID             int32
-	AccountID      int32
-	BandID         int32
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
-	AccountIsAdmin bool
+	ID             int32     `json:"id"`
+	AccountID      int32     `json:"account_id"`
+	BandID         int32     `json:"band_id"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+	AccountIsAdmin bool      `json:"account_is_admin"`
 }
 
 type Band struct {
-	ID        int32
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Name      string
+	ID        int32     `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Name      string    `json:"name"`
 }
