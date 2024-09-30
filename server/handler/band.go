@@ -10,13 +10,13 @@ import (
 )
 
 func (cfg *config) GetUserBands(w http.ResponseWriter, r *http.Request) {
-	id, ok := r.Context().Value("current-user").(int32)
+	id, ok := r.Context().Value("current-user").(int)
 	if !ok {
 		RespondWithError(w, http.StatusBadRequest, "invalid or missing user id")
 		return
 	}
 
-	bands, err := cfg.db.GetAccountBands(r.Context(), id)
+	bands, err := cfg.db.GetAccountBands(r.Context(), int32(id))
 	if errors.Is(err, sql.ErrNoRows) {
 		RespondWithError(w, http.StatusNotFound, "no bands for this account")
 		return
@@ -29,7 +29,7 @@ func (cfg *config) GetUserBands(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *config) CreateBand(w http.ResponseWriter, r *http.Request) {
-	id, ok := r.Context().Value("current-user").(int32)
+	id, ok := r.Context().Value("current-user").(int)
 	if !ok {
 		RespondWithError(w, http.StatusBadRequest, "invalid or missing user id")
 		return
@@ -51,7 +51,7 @@ func (cfg *config) CreateBand(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err = cfg.db.CreateAccountBand(r.Context(), database.CreateAccountBandParams{
-		AccountID:      id,
+		AccountID:      int32(id),
 		BandID:         band.ID,
 		AccountIsAdmin: true,
 	})

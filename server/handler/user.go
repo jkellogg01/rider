@@ -129,13 +129,13 @@ func (cfg *config) LoginUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *config) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
-	id, ok := r.Context().Value("current-user").(int32)
+	id, ok := r.Context().Value("current-user").(int)
 	if !ok {
 		RespondWithError(w, http.StatusInternalServerError, "invalid or missing user id")
 		return
 	}
 
-	user, err := cfg.db.GetAccount(r.Context(), id)
+	user, err := cfg.db.GetAccount(r.Context(), int32(id))
 	if errors.Is(err, sql.ErrNoRows) {
 		RespondWithError(w, http.StatusNotFound, "failed to find user")
 		return

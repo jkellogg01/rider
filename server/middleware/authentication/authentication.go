@@ -11,13 +11,13 @@ import (
 
 func AuthenticateUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		accessString, err := r.Cookie("rider-access")
+		accessCookie, err := r.Cookie("rider-access")
 		if err != nil {
 			handler.RespondWithError(w, http.StatusBadRequest, "no access cookie provided")
 			return
 		}
 
-		accessToken, err := jwt.ValidateAccessToken(accessString.Value)
+		accessToken, err := jwt.ValidateAccessToken(accessCookie.Value)
 		if err != nil {
 			handler.RespondWithError(w, http.StatusBadRequest, "failed to validate access token")
 			return
