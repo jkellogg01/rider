@@ -5,15 +5,31 @@
 package database
 
 import (
+	"database/sql"
 	"time"
 )
 
-type User struct {
+type Account struct {
 	ID         int32
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
-	Email      string
-	Password   string
 	GivenName  string
 	FamilyName string
+	Email      string
+	Password   string
+}
+
+type AccountBand struct {
+	ID        int32
+	AccountID sql.NullInt32
+	BandID    sql.NullInt32
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	IsAdmin   bool
+}
+
+type Band struct {
+	ID        int32
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

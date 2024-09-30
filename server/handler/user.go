@@ -40,7 +40,7 @@ func (cfg *config) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	created, err := cfg.db.CreateUser(ctx, database.CreateUserParams{
+	created, err := cfg.db.CreateAccount(ctx, database.CreateAccountParams{
 		Email:      body.Email,
 		Password:   string(passEncrypt),
 		GivenName:  body.GivenName,
@@ -91,7 +91,7 @@ func (cfg *config) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := cfg.db.GetUserByEmail(ctx, body.Email)
+	user, err := cfg.db.GetAccountByEmail(ctx, body.Email)
 	if errors.Is(err, sql.ErrNoRows) {
 		log.Printf("failed to find user: %v", err)
 		w.WriteHeader(http.StatusNotFound)
@@ -160,7 +160,7 @@ func (cfg *config) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	user, err := cfg.db.GetUser(ctx, int32(id))
+	user, err := cfg.db.GetAccount(ctx, int32(id))
 	if err != nil {
 		log.Printf("database error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
