@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"time"
 )
 
 const createAccountBand = `-- name: CreateAccountBand :one
@@ -54,25 +55,40 @@ func (q *Queries) CreateBand(ctx context.Context, name string) (Band, error) {
 }
 
 const getAccountBands = `-- name: GetAccountBands :many
-select id, created_at, updated_at, name from band where exists (
-  select id, account_id, band_id, created_at, updated_at, account_is_admin from account_band where account_id = $1 and band_id = band.id
-)
+select ab.account_id, ab.account_is_admin, ab.created_at as joined_at, ab.updated_at as join_updated_at, b.id, b.name, b.created_at, b.updated_at from account_band ab
+join band b
+on account_id = $1 and band_id = band.id
 `
 
-func (q *Queries) GetAccountBands(ctx context.Context, accountID int32) ([]Band, error) {
+type GetAccountBandsRow struct {
+	AccountID      int32     `json:"account_id"`
+	AccountIsAdmin bool      `json:"account_is_admin"`
+	JoinedAt       time.Time `json:"joined_at"`
+	JoinUpdatedAt  time.Time `json:"join_updated_at"`
+	ID             int32     `json:"id"`
+	Name           string    `json:"name"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+}
+
+func (q *Queries) GetAccountBands(ctx context.Context, accountID int32) ([]GetAccountBandsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getAccountBands, accountID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Band
+	var items []GetAccountBandsRow
 	for rows.Next() {
-		var i Band
+		var i GetAccountBandsRow
 		if err := rows.Scan(
+			&i.AccountID,
+			&i.AccountIsAdmin,
+			&i.JoinedAt,
+			&i.JoinUpdatedAt,
 			&i.ID,
+			&i.Name,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.Name,
 		); err != nil {
 			return nil, err
 		}

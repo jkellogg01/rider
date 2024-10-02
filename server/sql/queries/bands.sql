@@ -1,7 +1,7 @@
 -- name: GetAccountBands :many
-select * from band where exists (
-  select * from account_band where account_id = $1 and band_id = band.id
-);
+select ab.account_id, ab.account_is_admin, ab.created_at as joined_at, ab.updated_at as join_updated_at, b.id, b.name, b.created_at, b.updated_at from account_band ab
+join band b
+on account_id = $1 and band_id = band.id;
 
 -- name: CreateBand :one
 insert into band (name) values ($1) returning *;
