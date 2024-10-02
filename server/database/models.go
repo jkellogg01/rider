@@ -33,3 +33,12 @@ type Band struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	Name      string    `json:"name"`
 }
+
+type Invitation struct {
+	ID        int32     `json:"id"`
+	Body      string    `json:"body"`
+	CreatorID int32     `json:"creator_id"`
+	BandID    int32     `json:"band_id"`
+	CreatedAt time.Time `json:"created_at"`
+	ExpiresAt time.Time `json:"expires_at"`
+}

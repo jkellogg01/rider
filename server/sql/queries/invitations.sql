@@ -6,7 +6,7 @@ LIMIT 1;
 
 -- name: CreateInvitation :one
 INSERT INTO invitation (
-  creator_id, band_id, body, expires_at,
+  creator_id, band_id, body, expires_at
 ) VALUES (
   $1, $2, $3, $4
 ) RETURNING *;
