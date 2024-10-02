@@ -18,6 +18,7 @@ func (cfg *config) GetUserBands(w http.ResponseWriter, r *http.Request) {
 
 	bands, err := cfg.db.GetAccountBands(r.Context(), int32(id))
 	if errors.Is(err, sql.ErrNoRows) {
+		// NOTE: it doesn't look like this path actually gets hit when there are no bands for the account
 		RespondWithError(w, http.StatusNotFound, "no bands for this account")
 		return
 	} else if err != nil {

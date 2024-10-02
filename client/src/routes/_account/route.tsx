@@ -13,7 +13,7 @@ function AccountPage() {
 		queryFn: getCurrentUser,
 	});
 	if (result.data && !result.isStale) {
-		return <Navigate to="/app" />;
+		return <Navigate to="/dashboard" />;
 	}
 
 	// TODO: make a real page here

@@ -1,4 +1,3 @@
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { Field } from "@/components/FormField";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,26 +10,27 @@ import {
 } from "@/components/ui/card";
 import { useForm } from "@tanstack/react-form";
 import { zodValidator } from "@tanstack/zod-form-adapter";
-import { Loader2 } from "lucide-react";
+import { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createUserSchema } from "@/lib/api";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { Loader2 } from "lucide-react";
 
-export const Route = createFileRoute("/_account/register")({
-	component: RegisterForm,
+export const Route = createFileRoute("/_account/login")({
+	component: LoginForm,
 });
 
-function RegisterForm() {
+function LoginForm() {
 	const router = useRouter();
 	const queryClient = useQueryClient();
 
-	const registerMutation = useMutation({
+	const loginMutation = useMutation({
 		mutationFn: async (data: Object) => {
-			const res = await fetch("/api/users", {
+			const res = await fetch("/api/login", {
 				method: "POST",
 				body: JSON.stringify(data),
 			});
 			if (!res.ok) {
-				throw new Error("something went wrong while registering the user");
+				throw new Error("something went wrong while logging the user in");
 			}
 			return await res.json();
 		},
@@ -41,24 +41,22 @@ function RegisterForm() {
 
 	const form = useForm({
 		defaultValues: {
-			givenName: "",
-			familyName: "",
 			email: "",
 			password: "",
 		},
 		onSubmit: async ({ value }) => {
-			await registerMutation.mutateAsync(value);
-			router.navigate({ to: "/app" });
+			await loginMutation.mutateAsync(value);
+			router.navigate({ to: "/dashboard" });
 		},
-		validatorAdapter: zodValidator(),
 	});
 
 	return (
 		<Card className="max-w-sm mx-auto">
 			<CardHeader>
-				<CardTitle>Register</CardTitle>
+				<CardTitle>Log In</CardTitle>
+				{/* TODO: write good copy */}
 				<CardDescription>
-					Create a new account in order to get started with Rider
+					You'll need to sign in in order to take advantage of our services
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
@@ -69,46 +67,11 @@ function RegisterForm() {
 						form.handleSubmit();
 					}}
 				>
-					<div className="flex flex-row gap-2">
-						<form.Field
-							name="givenName"
-							validators={{
-								onBlur: createUserSchema.pick({ givenName: true }),
-							}}
-							children={(field) => (
-								<Field
-									name={field.name}
-									type="text"
-									label="Given Name"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(event) => field.handleChange(event.target.value)}
-									errors={field.state.meta.errors.join(", ")}
-								/>
-							)}
-						/>
-						<form.Field
-							name="familyName"
-							validators={{
-								onBlur: createUserSchema.pick({ familyName: true }),
-							}}
-							children={(field) => (
-								<Field
-									name={field.name}
-									type="text"
-									label="Family Name"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(event) => field.handleChange(event.target.value)}
-									errors={field.state.meta.errors.join(", ")}
-								/>
-							)}
-						/>
-					</div>
 					<form.Field
 						name="email"
+						validatorAdapter={zodValidator()}
 						validators={{
-							onBlur: createUserSchema.pick({ email: true }),
+							onBlur: z.string().email("please enter a valid email address"),
 						}}
 						children={(field) => (
 							<Field
@@ -116,24 +79,20 @@ function RegisterForm() {
 								type="email"
 								label="Email"
 								value={field.state.value}
-								onBlur={field.handleBlur}
 								onChange={(event) => field.handleChange(event.target.value)}
+								onBlur={field.handleBlur}
 								errors={field.state.meta.errors.join(", ")}
 							/>
 						)}
 					/>
 					<form.Field
 						name="password"
-						validators={{
-							onBlur: createUserSchema.pick({ password: true }),
-						}}
 						children={(field) => (
 							<Field
 								name={field.name}
 								type="password"
 								label="Password"
 								value={field.state.value}
-								onBlur={field.handleBlur}
 								onChange={(event) => field.handleChange(event.target.value)}
 								errors={field.state.meta.errors.join(", ")}
 							/>
@@ -156,7 +115,7 @@ function RegisterForm() {
 									type="submit"
 									className="mt-2 w-full"
 								>
-									Sign Up
+									Log In
 								</Button>
 							);
 						}}
@@ -165,9 +124,9 @@ function RegisterForm() {
 			</CardContent>
 			<CardFooter>
 				<p className="text-sm leading-none">
-					Already working with us?{" "}
-					<Link to="/login" className="underline">
-						Log In
+					Don't have an account?{" "}
+					<Link to="/register" className="underline">
+						Sign Up
 					</Link>
 				</p>
 			</CardFooter>
