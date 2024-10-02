@@ -174,25 +174,29 @@ function BandSelection() {
 										</Button>
 									);
 
+								const errorText = errors.join(", ");
+
+								if (errorText) {
+									return (
+										<div>
+											<div className="text-sm text-muted-foreground mt-2">
+												{errorText}
+											</div>
+											<Button
+												disabled={!canSubmit}
+												type="submit"
+												className="mt-2"
+											>
+												Submit
+											</Button>
+										</div>
+									);
+								}
+
 								return (
-									<TooltipProvider>
-										<Tooltip>
-											<TooltipTrigger>
-												<Button
-													disabled={!canSubmit}
-													type="submit"
-													className="mt-2"
-												>
-													{canSubmit
-														? values.joinCode
-															? "Join Band"
-															: "Create Band"
-														: "Submit"}
-												</Button>
-											</TooltipTrigger>
-											<TooltipContent>{errors.join(", ")}</TooltipContent>
-										</Tooltip>
-									</TooltipProvider>
+									<Button disabled={!canSubmit} type="submit" className="mt-2">
+										{values.joinCode ? "Join Band" : "Create Band"}
+									</Button>
 								);
 							}}
 						/>
