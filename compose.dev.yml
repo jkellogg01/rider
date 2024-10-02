@@ -27,7 +27,7 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      test: pg_isready -U postgres -d rider
       interval: 30s
       timeout: 60s
       retries: 5
