@@ -13,6 +13,7 @@ export const createUserSchema = userSchema.omit({ id: true });
 const getUserSchema = userSchema.omit({ password: true });
 
 export async function getCurrentUser() {
+	// TODO: maybe check for the auth cookie before trying to make a request?
 	const res = await fetch("/api/me");
 	if (!res.ok) {
 		throw new Error("something went wrong while fetching the current user");

@@ -27,7 +27,7 @@ const fakeMessages: Array<{ name: string; body: string; email: string }> = [
 		body: "Hey man, just reaching out to see if you'd be interested in opening for us this October. I know it's a pretty tight turnaround but I would really appreciate it!",
 	},
 	{
-		name: "Thomas D'example",
+		name: "Tomas D'example",
 		email: "thomas@nonemptyspace.net",
 		body: "This is just going to be a really really long message, the entire point of this message is to make the text wrap for at least three lines. What I really want more than anything is for the font to wrap for three lines so that I can see what it looks like when there's a really long and substantive message in my inbox",
 	},
