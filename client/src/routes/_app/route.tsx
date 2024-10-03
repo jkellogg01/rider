@@ -9,6 +9,13 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { getCurrentUser } from "@/lib/api";
 import { useForm } from "@tanstack/react-form";
@@ -36,6 +43,9 @@ export const Route = createFileRoute("/_app")({
 		return { user };
 	},
 	component: App,
+	validateSearch: z.object({
+		band: z.number().int().nullable(),
+	}),
 });
 
 function App() {
@@ -115,7 +125,7 @@ function BandSelection() {
 						queryKey: ["current-user-bands"],
 					});
 					router.navigate({
-						to: "/dashboard",
+						to: ".",
 						search: { band: data.id },
 					});
 				});
@@ -126,7 +136,7 @@ function BandSelection() {
 						queryKey: ["current-user-bands"],
 					});
 					router.navigate({
-						to: "/dashboard",
+						to: ".",
 						search: { band: data.band_id },
 					});
 				});
@@ -134,8 +144,34 @@ function BandSelection() {
 		},
 	});
 
+	const search = Route.useSearch();
+
 	if (data && data.length > 0) {
-		return <div>hello yes I am a multi select</div>;
+		return (
+			<Select
+				onValueChange={(value) => {
+					const id = Number(value);
+					router.navigate({ to: ".", search: { band: id } });
+				}}
+			>
+				<SelectTrigger>
+					<SelectValue
+						placeholder={
+							search.band
+								? data.find((e) => e.id === search.band)?.name
+								: "select a band"
+						}
+					/>
+				</SelectTrigger>
+				<SelectContent>
+					{data.map((band) => (
+						<SelectItem key={band.id} value={band.id.toString()}>
+							{band.name}
+						</SelectItem>
+					))}
+				</SelectContent>
+			</Select>
+		);
 	}
 
 	return (

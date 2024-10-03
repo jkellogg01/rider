@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -20,12 +20,6 @@ import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_app/dashboard")({
 	component: Dashboard,
-	validateSearch: (search) =>
-		z
-			.object({
-				band: z.number().int().nullable(),
-			})
-			.parse(search),
 });
 
 const fakeMessages: Array<{ name: string; body: string; email: string }> = [
