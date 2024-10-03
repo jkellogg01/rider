@@ -10,16 +10,10 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { getCurrentUser } from "@/lib/api";
 import { useForm } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-form-adapter";
 import { Loader2, Plus } from "lucide-react";
 import { z } from "zod";
@@ -31,13 +25,20 @@ export const Route = createFileRoute("/_app")({
 				queryKey: ["current-user"],
 				queryFn: getCurrentUser,
 			})
-			.catch(() => Route.router!.navigate({ to: "/login" }));
+			.catch(() => {
+				return null;
+			});
 		return { user };
 	},
 	component: App,
 });
 
 function App() {
+	const context = Route.useRouteContext();
+	if (!context.user) {
+		return <Navigate to="/login" />;
+	}
+
 	return (
 		<>
 			<Header>
@@ -107,7 +108,8 @@ function BandSelection() {
 			<Dialog defaultOpen>
 				<DialogTrigger asChild>
 					<Button variant="outline" size="sm">
-						<Plus /> Create a new band...
+						<Plus className="pr-2" />
+						Create a new band...
 					</Button>
 				</DialogTrigger>
 				<DialogContent className="max-w-sm">

@@ -17,13 +17,6 @@ import {
 } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_app/dashboard")({
 	component: Dashboard,
@@ -43,65 +36,92 @@ const fakeMessages: Array<{ name: string; body: string; email: string }> = [
 ];
 
 function Dashboard() {
+	const { data, error, isPending } = useQuery({
+		queryKey: ["current-user-bands"],
+		queryFn: async () => {
+			const res = await fetch("/api/bands");
+			if (!res.ok) {
+				throw new Error("failed to fetch user bands");
+			}
+			const data = await res.json();
+			const schema = z.object({
+				id: z.number().int(),
+				name: z.string(),
+				createdAt: z.date(),
+				updatedAt: z.date(),
+			});
+			return (
+				schema.array().nullable().parse(data) ??
+				new Array<typeof schema._type>()
+			);
+		},
+	});
+
+	console.log({ data, error, isPending });
+
+	if (isPending || error || data.length === 0) {
+		return (
+			<div className="text-center min-h-96 content-center">
+				Nothing to do...
+			</div>
+		);
+	}
+
 	return (
-		<>
-			<main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-				<div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
-					<Card>
-						<CardHeader>
-							<CardTitle>Quick Actions</CardTitle>
-						</CardHeader>
-						<CardContent className="grid gap-8">
-							There aren't any actions yet.
-						</CardContent>
-					</Card>
-					<Card className="xl:col-span-2">
-						<CardHeader className="flex flex-row items-center">
-							<div className="grid gap-2">
-								<CardTitle>Messages</CardTitle>
-								<CardDescription>
-									Who's been reaching out to you?
-								</CardDescription>
-							</div>
-							<Button asChild size="sm" className="ml-auto gap-1">
-								<Link to=".">View All</Link>
-							</Button>
-						</CardHeader>
-						<CardContent>
-							<Table>
-								<TableHeader>
-									<TableRow>
-										<TableHead>Name</TableHead>
-										<TableHead>Preview</TableHead>
-										<TableHead />
+		<main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+			<div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
+				<Card>
+					<CardHeader>
+						<CardTitle>Quick Actions</CardTitle>
+					</CardHeader>
+					<CardContent className="grid gap-8">
+						There aren't any actions yet.
+					</CardContent>
+				</Card>
+				<Card className="xl:col-span-2">
+					<CardHeader className="flex flex-row items-center">
+						<div className="grid gap-2">
+							<CardTitle>Messages</CardTitle>
+							<CardDescription>Who's been reaching out to you?</CardDescription>
+						</div>
+						<Button asChild size="sm" className="ml-auto gap-1">
+							<Link to=".">View All</Link>
+						</Button>
+					</CardHeader>
+					<CardContent>
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead>Name</TableHead>
+									<TableHead>Preview</TableHead>
+									<TableHead />
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{fakeMessages.map(({ name, email, body }) => (
+									<TableRow key={name + email}>
+										<TableCell className="align-top">
+											<div className="font-medium">{name}</div>
+											<div className="text-sm text-muted-foreground">
+												{email}
+											</div>
+										</TableCell>
+										<TableCell className="max-w-prose align-top">
+											{preview(body, 250)}
+										</TableCell>
+										<TableCell className="align-top">
+											<Button variant="outline" size="sm">
+												View
+											</Button>
+										</TableCell>
 									</TableRow>
-								</TableHeader>
-								<TableBody>
-									{fakeMessages.map(({ name, email, body }) => (
-										<TableRow key={name + email}>
-											<TableCell className="align-top">
-												<div className="font-medium">{name}</div>
-												<div className="text-sm text-muted-foreground">
-													{email}
-												</div>
-											</TableCell>
-											<TableCell className="max-w-prose align-top">
-												{preview(body, 250)}
-											</TableCell>
-											<TableCell className="align-top">
-												<Button variant="outline" size="sm">
-													View
-												</Button>
-											</TableCell>
-										</TableRow>
-									))}
-								</TableBody>
-							</Table>
-						</CardContent>
-					</Card>
-				</div>
-			</main>
-		</>
+								))}
+							</TableBody>
+						</Table>
+					</CardContent>
+				</Card>
+			</div>
+		</main>
 	);
 }
 
