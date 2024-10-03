@@ -21,7 +21,6 @@ import {
 } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-form-adapter";
 import { Loader2, Plus } from "lucide-react";
-import { useState } from "react";
 import { z } from "zod";
 
 export const Route = createFileRoute("/_app")({
@@ -121,7 +120,16 @@ function BandSelection() {
 					});
 				});
 			} else {
-				// TODO: join band
+				joinBand(value.joinCode).then((data) => {
+					console.log(data);
+					ctx.queryClient.invalidateQueries({
+						queryKey: ["current-user-bands"],
+					});
+					router.navigate({
+						to: "/dashboard",
+						search: { band: data.band_id },
+					});
+				});
 			}
 		},
 	});
@@ -250,6 +258,27 @@ async function createBand(name: string) {
 			created_at: z.string().datetime(),
 			updated_at: z.string().datetime(),
 			user_is_admin: z.boolean(),
+		})
+		.parse(data);
+}
+
+async function joinBand(code: string) {
+	const res = await fetch("/api/bands/join", {
+		method: "POST",
+		body: JSON.stringify({ code }),
+	});
+	if (!res.ok) {
+		throw new Error("failed to join band");
+	}
+	const data = await res.json();
+	return z
+		.object({
+			id: z.number().int(),
+			account_id: z.number().int(),
+			band_id: z.number().int(),
+			created_at: z.string().datetime(),
+			updated_at: z.string().datetime(),
+			account_is_admin: z.boolean(),
 		})
 		.parse(data);
 }

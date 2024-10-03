@@ -47,7 +47,14 @@ function Index() {
 			<BrandMark />
 			<div className="flex flex-row gap-2">
 				<Button size="sm" asChild>
-					<Link to="/dashboard">Hello, {data.givenName}!</Link>
+					<Link
+						to="/dashboard"
+						search={{
+							band: null,
+						}}
+					>
+						Hello, {data.givenName}!
+					</Link>
 				</Button>
 				<Button
 					size="sm"
