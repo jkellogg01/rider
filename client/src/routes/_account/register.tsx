@@ -48,7 +48,12 @@ function RegisterForm() {
 		},
 		onSubmit: async ({ value }) => {
 			await registerMutation.mutateAsync(value);
-			router.navigate({ to: "/dashboard" });
+			router.navigate({
+				to: "/dashboard",
+				search: {
+					band: null,
+				},
+			});
 		},
 		validatorAdapter: zodValidator(),
 	});

@@ -46,7 +46,7 @@ function LoginForm() {
 		},
 		onSubmit: async ({ value }) => {
 			await loginMutation.mutateAsync(value);
-			router.navigate({ to: "/dashboard" });
+			router.navigate({ to: "/dashboard", search: { band: null } });
 		},
 	});
 

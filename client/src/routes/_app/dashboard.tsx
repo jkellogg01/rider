@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -15,11 +15,17 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_app/dashboard")({
 	component: Dashboard,
+	validateSearch: (search) =>
+		z
+			.object({
+				band: z.number().int().nullable(),
+			})
+			.parse(search),
 });
 
 const fakeMessages: Array<{ name: string; body: string; email: string }> = [
@@ -35,31 +41,58 @@ const fakeMessages: Array<{ name: string; body: string; email: string }> = [
 	},
 ];
 
+async function sendInvite(id: number) {
+	const res = await fetch("/api/bands/join", {
+		body: JSON.stringify({ band_id: id }),
+	});
+	if (!res.ok) {
+		throw new Error("failed to fetch invitation");
+	}
+	const data = await res.json();
+	const schema = z.object({
+		id: z.number().int(),
+		body: z.string().length(10),
+		creatorId: z.number().int(),
+		bandId: z.number().int(),
+		createdAt: z.date(),
+		expiresAt: z.date(),
+	});
+	return schema.parse(data);
+}
+
 function Dashboard() {
-	const { data, error, isPending } = useQuery({
-		queryKey: ["current-user-bands"],
+	const { band: bandID } = Route.useSearch();
+	const {
+		data: band,
+		error,
+		isPending,
+	} = useQuery({
+		queryKey: ["band", bandID],
 		queryFn: async () => {
-			const res = await fetch("/api/bands");
+			if (!bandID) {
+				throw new Error("no band id");
+			}
+			const res = await fetch(`/api/bands/${bandID}`);
 			if (!res.ok) {
-				throw new Error("failed to fetch user bands");
+				switch (res.status) {
+					case 404:
+						return undefined;
+					default:
+						throw new Error("failed to fetch band");
+				}
 			}
 			const data = await res.json();
 			const schema = z.object({
-				id: z.number().int(),
+				id: z.number().int().min(1),
 				name: z.string(),
 				createdAt: z.date(),
 				updatedAt: z.date(),
 			});
-			return (
-				schema.array().nullable().parse(data) ??
-				new Array<typeof schema._type>()
-			);
+			return schema.parse(data);
 		},
 	});
 
-	console.log({ data, error, isPending });
-
-	if (isPending || error || data.length === 0) {
+	if (error || isPending || !band) {
 		return (
 			<div className="text-center min-h-96 content-center">
 				Nothing to do...
@@ -75,7 +108,14 @@ function Dashboard() {
 						<CardTitle>Quick Actions</CardTitle>
 					</CardHeader>
 					<CardContent className="grid gap-8">
-						There aren't any actions yet.
+						<Button
+							onClick={async () => {
+								const invite = await sendInvite(band.id);
+								console.log(invite);
+							}}
+						>
+							Invite members...
+						</Button>
 					</CardContent>
 				</Card>
 				<Card className="xl:col-span-2">

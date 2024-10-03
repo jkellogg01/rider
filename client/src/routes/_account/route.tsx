@@ -13,7 +13,7 @@ function AccountPage() {
 		queryFn: getCurrentUser,
 	});
 	if (result.data && !result.isStale) {
-		return <Navigate to="/dashboard" />;
+		return <Navigate to="/dashboard" search={{ band: null }} />;
 	}
 
 	// TODO: make a real page here
