@@ -10,3 +10,7 @@ INSERT INTO invitation (
 ) VALUES (
   $1, $2, $3, $4
 ) RETURNING *;
+
+-- name: CullInvitations :exec
+DELETE FROM invitation
+WHERE expires_at < NOW() - interval '7 days';

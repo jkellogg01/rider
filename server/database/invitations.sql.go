@@ -44,6 +44,16 @@ func (q *Queries) CreateInvitation(ctx context.Context, arg CreateInvitationPara
 	return i, err
 }
 
+const cullInvitations = `-- name: CullInvitations :exec
+DELETE FROM invitation
+WHERE expires_at < NOW() - interval '7 days'
+`
+
+func (q *Queries) CullInvitations(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, cullInvitations)
+	return err
+}
+
 const getInvitation = `-- name: GetInvitation :one
 SELECT id, body, creator_id, band_id, created_at, expires_at FROM invitation 
 WHERE body = $1
