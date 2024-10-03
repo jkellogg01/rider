@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"cmp"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -112,17 +111,21 @@ func (cfg *config) CreateInvitation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var body struct {
-		Band      int32     `json:"band_id,omitempty"`
-		ExpiresAt time.Time `json:"expires_at,omitempty"`
-	}
-	err := json.NewDecoder(r.Body).Decode(&body)
+	bandIDString := r.PathValue("band_id")
+	bandID, err := strconv.Atoi(bandIDString)
 	if err != nil {
-		RespondWithError(w, http.StatusInternalServerError, "failed to decode request body")
+		RespondWithError(w, http.StatusBadRequest, "invalid band id")
 		return
-	} else if body.Band == 0 {
-		RespondWithError(w, http.StatusBadRequest, "request must contain band id")
-		return
+	}
+
+	expireString := r.URL.Query().Get("expire")
+	var expireTime time.Time
+	if expireString != "" {
+		expireSeconds, err := strconv.Atoi(expireString)
+		if err != nil {
+			expireSeconds = 60 * 15
+		}
+		expireTime = time.Now().Add(time.Second * time.Duration(expireSeconds))
 	}
 
 	var invitation database.Invitation
@@ -130,9 +133,9 @@ func (cfg *config) CreateInvitation(w http.ResponseWriter, r *http.Request) {
 		// HACK: I would do this in a smarter way if I was more worried about invitation collisions
 		invitation, err = cfg.db.CreateInvitation(r.Context(), database.CreateInvitationParams{
 			CreatorID: int32(id),
-			BandID:    body.Band,
+			BandID:    int32(bandID),
 			Body:      generateInvitationBody(10),
-			ExpiresAt: cmp.Or(body.ExpiresAt, time.Now().Add(time.Second*60*15)),
+			ExpiresAt: expireTime,
 		})
 		if err == nil {
 			RespondWithJSON(w, http.StatusCreated, invitation)

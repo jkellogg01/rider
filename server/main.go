@@ -38,7 +38,7 @@ func main() {
 	authed.HandleFunc("GET /bands", cfg.GetUserBands)
 	authed.HandleFunc("GET /bands/{band_id}", cfg.GetBand)
 	authed.HandleFunc("POST /bands", cfg.CreateBand)
-	authed.HandleFunc("GET /bands/join", cfg.CreateInvitation)
+	authed.HandleFunc("GET /bands/join/{band_id}", cfg.CreateInvitation)
 	authed.HandleFunc("POST /bands/join", cfg.RedeemInvitation)
 
 	if os.Getenv("ENVIRONMENT") == "development" {

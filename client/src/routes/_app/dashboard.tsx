@@ -42,9 +42,7 @@ const fakeMessages: Array<{ name: string; body: string; email: string }> = [
 ];
 
 async function sendInvite(id: number) {
-	const res = await fetch("/api/bands/join", {
-		body: JSON.stringify({ band_id: id }),
-	});
+	const res = await fetch(`/api/bands/join/${id}`);
 	if (!res.ok) {
 		throw new Error("failed to fetch invitation");
 	}
@@ -52,10 +50,10 @@ async function sendInvite(id: number) {
 	const schema = z.object({
 		id: z.number().int(),
 		body: z.string().length(10),
-		creatorId: z.number().int(),
-		bandId: z.number().int(),
-		createdAt: z.date(),
-		expiresAt: z.date(),
+		creator_id: z.number().int(),
+		band_id: z.number().int(),
+		created_at: z.string().datetime(),
+		expiresAt: z.string().datetime(),
 	});
 	return schema.parse(data);
 }
@@ -82,13 +80,16 @@ function Dashboard() {
 				}
 			}
 			const data = await res.json();
-			const schema = z.object({
-				id: z.number().int().min(1),
-				name: z.string(),
-				createdAt: z.date(),
-				updatedAt: z.date(),
-			});
-			return schema.parse(data);
+			const result = z
+				.object({
+					id: z.number().int().min(1),
+					name: z.string(),
+					created_at: z.string().datetime(),
+					updated_at: z.string().datetime(),
+				})
+				.parse(data);
+			console.log({ data, result });
+			return result;
 		},
 	});
 
