@@ -1,3 +1,4 @@
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { Field } from "@/components/FormField";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,27 +11,26 @@ import {
 } from "@/components/ui/card";
 import { useForm } from "@tanstack/react-form";
 import { zodValidator } from "@tanstack/zod-form-adapter";
-import { z } from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createUserSchema } from "@/lib/api";
 
-export const Route = createFileRoute("/_account/login")({
-	component: LoginForm,
+export const Route = createFileRoute("/_account/register")({
+	component: RegisterForm,
 });
 
-function LoginForm() {
+function RegisterForm() {
 	const router = useRouter();
 	const queryClient = useQueryClient();
 
-	const loginMutation = useMutation({
+	const registerMutation = useMutation({
 		mutationFn: async (data: Object) => {
-			const res = await fetch("/api/login", {
+			const res = await fetch("/api/users", {
 				method: "POST",
 				body: JSON.stringify(data),
 			});
 			if (!res.ok) {
-				throw new Error("something went wrong while logging the user in");
+				throw new Error("something went wrong while registering the user");
 			}
 			return await res.json();
 		},
@@ -41,22 +41,29 @@ function LoginForm() {
 
 	const form = useForm({
 		defaultValues: {
+			givenName: "",
+			familyName: "",
 			email: "",
 			password: "",
 		},
 		onSubmit: async ({ value }) => {
-			await loginMutation.mutateAsync(value);
-			router.navigate({ to: "/app" });
+			await registerMutation.mutateAsync(value);
+			router.navigate({
+				to: "/dashboard",
+				search: {
+					band: null,
+				},
+			});
 		},
+		validatorAdapter: zodValidator(),
 	});
 
 	return (
 		<Card className="max-w-sm mx-auto">
 			<CardHeader>
-				<CardTitle>Log In</CardTitle>
-				{/* TODO: write good copy */}
+				<CardTitle>Register</CardTitle>
 				<CardDescription>
-					You'll need to sign in in order to take advantage of our services
+					Create a new account in order to get started with Rider
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
@@ -67,11 +74,46 @@ function LoginForm() {
 						form.handleSubmit();
 					}}
 				>
+					<div className="flex flex-row gap-2">
+						<form.Field
+							name="givenName"
+							validators={{
+								onBlur: createUserSchema.shape.givenName,
+							}}
+							children={(field) => (
+								<Field
+									name={field.name}
+									type="text"
+									label="Given Name"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(event) => field.handleChange(event.target.value)}
+									errors={field.state.meta.errors.join(", ")}
+								/>
+							)}
+						/>
+						<form.Field
+							name="familyName"
+							validators={{
+								onBlur: createUserSchema.shape.familyName,
+							}}
+							children={(field) => (
+								<Field
+									name={field.name}
+									type="text"
+									label="Family Name"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(event) => field.handleChange(event.target.value)}
+									errors={field.state.meta.errors.join(", ")}
+								/>
+							)}
+						/>
+					</div>
 					<form.Field
 						name="email"
-						validatorAdapter={zodValidator()}
 						validators={{
-							onBlur: z.string().email("please enter a valid email address"),
+							onBlur: createUserSchema.shape.email,
 						}}
 						children={(field) => (
 							<Field
@@ -79,20 +121,24 @@ function LoginForm() {
 								type="email"
 								label="Email"
 								value={field.state.value}
-								onChange={(event) => field.handleChange(event.target.value)}
 								onBlur={field.handleBlur}
+								onChange={(event) => field.handleChange(event.target.value)}
 								errors={field.state.meta.errors.join(", ")}
 							/>
 						)}
 					/>
 					<form.Field
 						name="password"
+						validators={{
+							onBlur: createUserSchema.shape.password,
+						}}
 						children={(field) => (
 							<Field
 								name={field.name}
 								type="password"
 								label="Password"
 								value={field.state.value}
+								onBlur={field.handleBlur}
 								onChange={(event) => field.handleChange(event.target.value)}
 								errors={field.state.meta.errors.join(", ")}
 							/>
@@ -103,19 +149,15 @@ function LoginForm() {
 						children={([canSubmit, isSubmitting]) => {
 							if (isSubmitting)
 								return (
-									<Button type="submit" disabled className="mt-2 w-full">
+									<Button type="submit" disabled className="mt-2">
 										<Loader2 className="mr-2 size-4 animate-spin" />
 										Please wait...
 									</Button>
 								);
 
 							return (
-								<Button
-									disabled={!canSubmit}
-									type="submit"
-									className="mt-2 w-full"
-								>
-									Log In
+								<Button disabled={!canSubmit} type="submit" className="mt-2">
+									Sign Up
 								</Button>
 							);
 						}}
@@ -124,9 +166,9 @@ function LoginForm() {
 			</CardContent>
 			<CardFooter>
 				<p className="text-sm leading-none">
-					Don't have an account?{" "}
-					<Link to="/register" className="underline">
-						Sign Up
+					Already working with us?{" "}
+					<Link to="/login" className="underline">
+						Log In
 					</Link>
 				</p>
 			</CardFooter>

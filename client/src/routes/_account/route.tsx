@@ -13,7 +13,7 @@ function AccountPage() {
 		queryFn: getCurrentUser,
 	});
 	if (result.data && !result.isStale) {
-		return <Navigate to="/app" />;
+		return <Navigate to="/dashboard" search={{ band: null }} />;
 	}
 
 	// TODO: make a real page here
@@ -21,7 +21,6 @@ function AccountPage() {
 		<div className="h-dvh flex flex-col">
 			<Header>
 				<BrandMark />
-				<div />
 			</Header>
 			<div className="h-full content-center px-2">
 				<Outlet />

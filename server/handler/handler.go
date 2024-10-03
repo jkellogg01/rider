@@ -21,8 +21,21 @@ func (cfg *config) WithDB(db *sql.DB) *config {
 	return cfg
 }
 
-func respondWithJSON(w http.ResponseWriter, status int, data any) {
+func RespondWithJSON(w http.ResponseWriter, status int, data any) {
 	body, err := json.Marshal(data)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(status)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(body)
+}
+
+func RespondWithError(w http.ResponseWriter, status int, message string) {
+	body, err := json.Marshal(map[string]string{
+		"message": message,
+	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

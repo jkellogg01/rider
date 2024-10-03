@@ -11,21 +11,21 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as AppImport } from './routes/app'
-import { Route as AccountImport } from './routes/_account'
+import { Route as AppRouteImport } from './routes/_app/route'
+import { Route as AccountRouteImport } from './routes/_account/route'
 import { Route as IndexImport } from './routes/index'
-import { Route as AppIndexImport } from './routes/app.index'
-import { Route as AccountRegisterImport } from './routes/_account.register'
-import { Route as AccountLoginImport } from './routes/_account.login'
+import { Route as AppDashboardImport } from './routes/_app/dashboard'
+import { Route as AccountRegisterImport } from './routes/_account/register'
+import { Route as AccountLoginImport } from './routes/_account/login'
 
 // Create/Update Routes
 
-const AppRoute = AppImport.update({
-  path: '/app',
+const AppRouteRoute = AppRouteImport.update({
+  id: '/_app',
   getParentRoute: () => rootRoute,
 } as any)
 
-const AccountRoute = AccountImport.update({
+const AccountRouteRoute = AccountRouteImport.update({
   id: '/_account',
   getParentRoute: () => rootRoute,
 } as any)
@@ -35,19 +35,19 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AppIndexRoute = AppIndexImport.update({
-  path: '/',
-  getParentRoute: () => AppRoute,
+const AppDashboardRoute = AppDashboardImport.update({
+  path: '/dashboard',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 
 const AccountRegisterRoute = AccountRegisterImport.update({
   path: '/register',
-  getParentRoute: () => AccountRoute,
+  getParentRoute: () => AccountRouteRoute,
 } as any)
 
 const AccountLoginRoute = AccountLoginImport.update({
   path: '/login',
-  getParentRoute: () => AccountRoute,
+  getParentRoute: () => AccountRouteRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -65,14 +65,14 @@ declare module '@tanstack/react-router' {
       id: '/_account'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof AccountImport
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRoute
     }
-    '/app': {
-      id: '/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppImport
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRoute
     }
     '/_account/login': {
@@ -80,103 +80,105 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof AccountLoginImport
-      parentRoute: typeof AccountImport
+      parentRoute: typeof AccountRouteImport
     }
     '/_account/register': {
       id: '/_account/register'
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof AccountRegisterImport
-      parentRoute: typeof AccountImport
+      parentRoute: typeof AccountRouteImport
     }
-    '/app/': {
-      id: '/app/'
-      path: '/'
-      fullPath: '/app/'
-      preLoaderRoute: typeof AppIndexImport
-      parentRoute: typeof AppImport
+    '/_app/dashboard': {
+      id: '/_app/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AppDashboardImport
+      parentRoute: typeof AppRouteImport
     }
   }
 }
 
 // Create and export the route tree
 
-interface AccountRouteChildren {
+interface AccountRouteRouteChildren {
   AccountLoginRoute: typeof AccountLoginRoute
   AccountRegisterRoute: typeof AccountRegisterRoute
 }
 
-const AccountRouteChildren: AccountRouteChildren = {
+const AccountRouteRouteChildren: AccountRouteRouteChildren = {
   AccountLoginRoute: AccountLoginRoute,
   AccountRegisterRoute: AccountRegisterRoute,
 }
 
-const AccountRouteWithChildren =
-  AccountRoute._addFileChildren(AccountRouteChildren)
+const AccountRouteRouteWithChildren = AccountRouteRoute._addFileChildren(
+  AccountRouteRouteChildren,
+)
 
-interface AppRouteChildren {
-  AppIndexRoute: typeof AppIndexRoute
+interface AppRouteRouteChildren {
+  AppDashboardRoute: typeof AppDashboardRoute
 }
 
-const AppRouteChildren: AppRouteChildren = {
-  AppIndexRoute: AppIndexRoute,
+const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppDashboardRoute: AppDashboardRoute,
 }
 
-const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
+  AppRouteRouteChildren,
+)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '': typeof AccountRouteWithChildren
-  '/app': typeof AppRouteWithChildren
+  '': typeof AppRouteRouteWithChildren
   '/login': typeof AccountLoginRoute
   '/register': typeof AccountRegisterRoute
-  '/app/': typeof AppIndexRoute
+  '/dashboard': typeof AppDashboardRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '': typeof AccountRouteWithChildren
+  '': typeof AppRouteRouteWithChildren
   '/login': typeof AccountLoginRoute
   '/register': typeof AccountRegisterRoute
-  '/app': typeof AppIndexRoute
+  '/dashboard': typeof AppDashboardRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/_account': typeof AccountRouteWithChildren
-  '/app': typeof AppRouteWithChildren
+  '/_account': typeof AccountRouteRouteWithChildren
+  '/_app': typeof AppRouteRouteWithChildren
   '/_account/login': typeof AccountLoginRoute
   '/_account/register': typeof AccountRegisterRoute
-  '/app/': typeof AppIndexRoute
+  '/_app/dashboard': typeof AppDashboardRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '' | '/app' | '/login' | '/register' | '/app/'
+  fullPaths: '/' | '' | '/login' | '/register' | '/dashboard'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '' | '/login' | '/register' | '/app'
+  to: '/' | '' | '/login' | '/register' | '/dashboard'
   id:
     | '__root__'
     | '/'
     | '/_account'
-    | '/app'
+    | '/_app'
     | '/_account/login'
     | '/_account/register'
-    | '/app/'
+    | '/_app/dashboard'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AccountRoute: typeof AccountRouteWithChildren
-  AppRoute: typeof AppRouteWithChildren
+  AccountRouteRoute: typeof AccountRouteRouteWithChildren
+  AppRouteRoute: typeof AppRouteRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AccountRoute: AccountRouteWithChildren,
-  AppRoute: AppRouteWithChildren,
+  AccountRouteRoute: AccountRouteRouteWithChildren,
+  AppRouteRoute: AppRouteRouteWithChildren,
 }
 
 export const routeTree = rootRoute
@@ -193,36 +195,36 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/_account",
-        "/app"
+        "/_app"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
     "/_account": {
-      "filePath": "_account.tsx",
+      "filePath": "_account/route.tsx",
       "children": [
         "/_account/login",
         "/_account/register"
       ]
     },
-    "/app": {
-      "filePath": "app.tsx",
+    "/_app": {
+      "filePath": "_app/route.tsx",
       "children": [
-        "/app/"
+        "/_app/dashboard"
       ]
     },
     "/_account/login": {
-      "filePath": "_account.login.tsx",
+      "filePath": "_account/login.tsx",
       "parent": "/_account"
     },
     "/_account/register": {
-      "filePath": "_account.register.tsx",
+      "filePath": "_account/register.tsx",
       "parent": "/_account"
     },
-    "/app/": {
-      "filePath": "app.index.tsx",
-      "parent": "/app"
+    "/_app/dashboard": {
+      "filePath": "_app/dashboard.tsx",
+      "parent": "/_app"
     }
   }
 }
