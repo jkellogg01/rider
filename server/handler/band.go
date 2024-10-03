@@ -87,7 +87,7 @@ func (cfg *config) CreateBand(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = cfg.db.CreateAccountBand(r.Context(), database.CreateAccountBandParams{
+	ab, err := cfg.db.CreateAccountBand(r.Context(), database.CreateAccountBandParams{
 		AccountID:      int32(id),
 		BandID:         band.ID,
 		AccountIsAdmin: true,
@@ -96,7 +96,13 @@ func (cfg *config) CreateBand(w http.ResponseWriter, r *http.Request) {
 		RespondWithError(w, http.StatusInternalServerError, "failed to write to database")
 	}
 
-	RespondWithJSON(w, http.StatusCreated, band)
+	RespondWithJSON(w, http.StatusCreated, map[string]any{
+		"id":            band.ID,
+		"name":          band.Name,
+		"created_at":    band.CreatedAt,
+		"updated_at":    band.UpdatedAt,
+		"user_is_admin": ab.AccountIsAdmin,
+	})
 }
 
 func (cfg *config) CreateInvitation(w http.ResponseWriter, r *http.Request) {
