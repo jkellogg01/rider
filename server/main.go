@@ -38,6 +38,7 @@ func main() {
 	authed.HandleFunc("GET /bands", cfg.GetUserBands)
 	authed.HandleFunc("POST /bands", cfg.CreateBand)
 	authed.HandleFunc("GET /bands/join", cfg.CreateInvitation)
+	authed.HandleFunc("POST /bands/join", cfg.RedeemInvitation)
 
 	if os.Getenv("ENVIRONMENT") == "development" {
 		dev := http.NewServeMux()

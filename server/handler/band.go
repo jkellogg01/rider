@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"math"
 	"math/rand"
@@ -117,4 +118,51 @@ func generateInvitationBody(length int) string {
 		buf = append(buf, char)
 	}
 	return string(buf)
+}
+
+func (cfg *config) RedeemInvitation(w http.ResponseWriter, r *http.Request) {
+	id, ok := r.Context().Value("current-user").(int)
+	if !ok {
+		RespondWithError(w, http.StatusBadRequest, "missing or invalid user id")
+		return
+	}
+
+	var body struct {
+		Code string `json:"code"`
+	}
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		RespondWithError(w, http.StatusInternalServerError, "failed to decode request body")
+		return
+	}
+
+	invitation, err := cfg.db.GetInvitation(r.Context(), body.Code)
+	if errors.Is(err, sql.ErrNoRows) {
+		RespondWithError(w, http.StatusNotFound, "could not find an invitation related to this code")
+		return
+	} else if err != nil {
+		RespondWithError(w, http.StatusInternalServerError, "unexpected database error")
+		return
+	} else if invitation.ExpiresAt.After(time.Now()) {
+		RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("this invitation code expired at %v", invitation.ExpiresAt))
+		return
+	}
+
+	accountBand, err := cfg.db.CreateAccountBand(r.Context(), database.CreateAccountBandParams{
+		AccountID: int32(id),
+		BandID:    invitation.BandID,
+		// TODO: store this with the rest of the invitation data
+		AccountIsAdmin: false,
+	})
+	if errors.Is(err, sql.ErrNoRows) {
+		// TODO: I'm not sure if this will actually come up
+		// need to establish the foundation to make these kinds of checks
+		RespondWithError(w, http.StatusNotFound, "the band this invitation refers to does not exist")
+		return
+	} else if err != nil {
+		RespondWithError(w, http.StatusInternalServerError, "unexpected database error")
+		return
+	}
+
+	RespondWithJSON(w, http.StatusCreated, accountBand)
 }
