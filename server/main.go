@@ -36,6 +36,7 @@ func main() {
 	api.Handle("/", authentication.AuthenticateUser(authed))
 	authed.HandleFunc("GET /me", cfg.GetCurrentUser)
 	authed.HandleFunc("GET /bands", cfg.GetUserBands)
+	authed.HandleFunc("GET /bands/{band_id}", cfg.GetBand)
 	authed.HandleFunc("POST /bands", cfg.CreateBand)
 	authed.HandleFunc("GET /bands/join", cfg.CreateInvitation)
 	authed.HandleFunc("POST /bands/join", cfg.RedeemInvitation)

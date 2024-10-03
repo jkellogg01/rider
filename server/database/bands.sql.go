@@ -55,7 +55,16 @@ func (q *Queries) CreateBand(ctx context.Context, name string) (Band, error) {
 }
 
 const getAccountBands = `-- name: GetAccountBands :many
-select ab.account_id, ab.account_is_admin, ab.created_at as joined_at, ab.updated_at as join_updated_at, b.id, b.name, b.created_at, b.updated_at from account_band ab
+select 
+  ab.account_id, 
+  ab.account_is_admin,
+  ab.created_at as joined_at,
+  ab.updated_at as join_updated_at,
+  b.id,
+  b.name,
+  b.created_at,
+  b.updated_at 
+from account_band ab
 join band b
 on ab.account_id = $1 and ab.band_id = b.id
 `
@@ -101,4 +110,28 @@ func (q *Queries) GetAccountBands(ctx context.Context, accountID int32) ([]GetAc
 		return nil, err
 	}
 	return items, nil
+}
+
+const getBand = `-- name: GetBand :one
+select id, created_at, updated_at, name from band where exists (
+  select id, account_id, band_id, created_at, updated_at, account_is_admin from account_band where account_id = $1 and band_id = band.id
+) and band.id = $2 
+group by band.id limit 1
+`
+
+type GetBandParams struct {
+	AccountID int32 `json:"account_id"`
+	ID        int32 `json:"id"`
+}
+
+func (q *Queries) GetBand(ctx context.Context, arg GetBandParams) (Band, error) {
+	row := q.db.QueryRowContext(ctx, getBand, arg.AccountID, arg.ID)
+	var i Band
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Name,
+	)
+	return i, err
 }

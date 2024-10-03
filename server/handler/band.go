@@ -10,10 +10,40 @@ import (
 	"math"
 	"math/rand"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/jkellogg01/rider/server/database"
 )
+
+func (cfg *config) GetBand(w http.ResponseWriter, r *http.Request) {
+	id, ok := r.Context().Value("current-user").(int)
+	if !ok {
+		RespondWithError(w, http.StatusBadRequest, "invalid or missing user id")
+		return
+	}
+
+	bandIdString := r.PathValue("band_id")
+	bandId, err := strconv.Atoi(bandIdString)
+	if err != nil {
+		RespondWithError(w, http.StatusInternalServerError, "could not parse band id")
+		return
+	}
+
+	band, err := cfg.db.GetBand(r.Context(), database.GetBandParams{
+		AccountID: int32(id),
+		ID:        int32(bandId),
+	})
+	if errors.Is(err, sql.ErrNoRows) {
+		RespondWithError(w, http.StatusNotFound, "no matching band")
+		return
+	} else if err != nil {
+		RespondWithError(w, http.StatusInternalServerError, "unexpected database error")
+		return
+	}
+
+	RespondWithJSON(w, http.StatusOK, band)
+}
 
 func (cfg *config) GetUserBands(w http.ResponseWriter, r *http.Request) {
 	id, ok := r.Context().Value("current-user").(int)
