@@ -17,6 +17,8 @@ services:
       watch:
         - path: ./server
           action: rebuild
+          ignore:
+            - ./server/sql/
   db:
     image: postgres
     restart: always
