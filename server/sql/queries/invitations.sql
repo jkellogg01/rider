@@ -13,4 +13,10 @@ INSERT INTO invitation (
 
 -- name: CullInvitations :exec
 DELETE FROM invitation
-WHERE expires_at < NOW() - interval '7 days';
+WHERE expires_at < NOW() - interval @expired_cull::text
+OR (!keep AND created_at < NOW() - interval @unkept_cull::text);
+
+-- name: KeepInvitation :exec
+UPDATE invitation
+SET keep = true
+WHERE id = $1;

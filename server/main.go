@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/jkellogg01/rider/server/handler"
 	"github.com/jkellogg01/rider/server/middleware/authentication"
@@ -39,26 +40,8 @@ func main() {
 	authed.HandleFunc("GET /bands/{band_id}", cfg.GetBand)
 	authed.HandleFunc("POST /bands", cfg.CreateBand)
 	authed.HandleFunc("GET /bands/join/{band_id}", cfg.CreateInvitation)
+	authed.HandleFunc("POST /bands/join/{invite_id}", cfg.SaveInvitation)
 	authed.HandleFunc("POST /bands/join", cfg.RedeemInvitation)
-
-	if os.Getenv("ENVIRONMENT") == "development" {
-		dev := http.NewServeMux()
-		router.Handle("/dev/", http.StripPrefix("/dev", dev))
-		dev.HandleFunc("/reset-db", func(w http.ResponseWriter, r *http.Request) {
-			log.Println("DEV MODE: resetting migrations")
-			err := goose.Reset(db, "sql/schema")
-			if err != nil {
-				w.WriteHeader(500)
-				log.Fatal("database reset failed")
-			}
-			err = goose.Up(db, "sql/schema")
-			if err != nil {
-				w.WriteHeader(500)
-				log.Fatal("database reset failed")
-			}
-			w.WriteHeader(200)
-		})
-	}
 
 	dist := http.FileServer(http.Dir("dist"))
 	router.Handle("/", dist)
@@ -68,6 +51,13 @@ func main() {
 		Addr:    fmt.Sprintf("0.0.0.0:%s", cmp.Or(os.Getenv("PORT"), "8080")),
 		Handler: l.Logging(router),
 	}
+
+	daily := time.NewTicker(time.Second * 60 * 60 * 24)
+	go func() {
+		for range daily.C {
+			cfg.CullInvitations()
+		}
+	}()
 
 	log.Printf("starting server at %s", server.Addr)
 	err = server.ListenAndServe()

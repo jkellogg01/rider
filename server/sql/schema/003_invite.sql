@@ -4,6 +4,7 @@ CREATE TABLE invitation (
   body text UNIQUE NOT NULL,
   creator_id int NOT NULL REFERENCES account (id),
   band_id int NOT NULL REFERENCES band (id),
+  keep boolean NOT NULL DEFAULT false,
   created_at timestamp NOT NULL DEFAULT NOW(),
   expires_at timestamp NOT NULL
 );

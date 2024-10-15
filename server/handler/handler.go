@@ -32,6 +32,7 @@ func RespondWithJSON(w http.ResponseWriter, status int, data any) {
 	w.Write(body)
 }
 
+// TODO: make this variadic and use a format string
 func RespondWithError(w http.ResponseWriter, status int, message string) {
 	body, err := json.Marshal(map[string]string{
 		"message": message,

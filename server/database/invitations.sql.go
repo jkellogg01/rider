@@ -15,7 +15,7 @@ INSERT INTO invitation (
   creator_id, band_id, body, expires_at
 ) VALUES (
   $1, $2, $3, $4
-) RETURNING id, body, creator_id, band_id, created_at, expires_at
+) RETURNING id, body, creator_id, band_id, keep, created_at, expires_at
 `
 
 type CreateInvitationParams struct {
@@ -38,6 +38,7 @@ func (q *Queries) CreateInvitation(ctx context.Context, arg CreateInvitationPara
 		&i.Body,
 		&i.CreatorID,
 		&i.BandID,
+		&i.Keep,
 		&i.CreatedAt,
 		&i.ExpiresAt,
 	)
@@ -46,16 +47,22 @@ func (q *Queries) CreateInvitation(ctx context.Context, arg CreateInvitationPara
 
 const cullInvitations = `-- name: CullInvitations :exec
 DELETE FROM invitation
-WHERE expires_at < NOW() - interval '7 days'
+WHERE expires_at < NOW() - interval $1::text
+OR (!keep AND created_at < NOW() - interval $2::text)
 `
 
-func (q *Queries) CullInvitations(ctx context.Context) error {
-	_, err := q.db.ExecContext(ctx, cullInvitations)
+type CullInvitationsParams struct {
+	ExpiredCull string `json:"expired_cull"`
+	UnkeptCull  string `json:"unkept_cull"`
+}
+
+func (q *Queries) CullInvitations(ctx context.Context, arg CullInvitationsParams) error {
+	_, err := q.db.ExecContext(ctx, cullInvitations, arg.ExpiredCull, arg.UnkeptCull)
 	return err
 }
 
 const getInvitation = `-- name: GetInvitation :one
-SELECT id, body, creator_id, band_id, created_at, expires_at FROM invitation 
+SELECT id, body, creator_id, band_id, keep, created_at, expires_at FROM invitation 
 WHERE body = $1
 GROUP BY id
 LIMIT 1
@@ -69,8 +76,20 @@ func (q *Queries) GetInvitation(ctx context.Context, body string) (Invitation, e
 		&i.Body,
 		&i.CreatorID,
 		&i.BandID,
+		&i.Keep,
 		&i.CreatedAt,
 		&i.ExpiresAt,
 	)
 	return i, err
+}
+
+const keepInvitation = `-- name: KeepInvitation :exec
+UPDATE invitation
+SET keep = true
+WHERE id = $1
+`
+
+func (q *Queries) KeepInvitation(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, keepInvitation, id)
+	return err
 }

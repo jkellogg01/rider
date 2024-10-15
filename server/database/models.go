@@ -39,6 +39,7 @@ type Invitation struct {
 	Body      string    `json:"body"`
 	CreatorID int32     `json:"creator_id"`
 	BandID    int32     `json:"band_id"`
+	Keep      bool      `json:"keep"`
 	CreatedAt time.Time `json:"created_at"`
 	ExpiresAt time.Time `json:"expires_at"`
 }
