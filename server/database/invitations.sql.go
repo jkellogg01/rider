@@ -12,17 +12,18 @@ import (
 
 const createInvitation = `-- name: CreateInvitation :one
 INSERT INTO invitation (
-  creator_id, band_id, body, expires_at
+  creator_id, band_id, body, grants_admin, expires_at
 ) VALUES (
-  $1, $2, $3, $4
-) RETURNING id, body, creator_id, band_id, keep, created_at, expires_at
+  $1, $2, $3, $4, $5
+) RETURNING id, body, creator_id, band_id, keep, grants_admin, created_at, expires_at
 `
 
 type CreateInvitationParams struct {
-	CreatorID int32     `json:"creator_id"`
-	BandID    int32     `json:"band_id"`
-	Body      string    `json:"body"`
-	ExpiresAt time.Time `json:"expires_at"`
+	CreatorID   int32     `json:"creator_id"`
+	BandID      int32     `json:"band_id"`
+	Body        string    `json:"body"`
+	GrantsAdmin bool      `json:"grants_admin"`
+	ExpiresAt   time.Time `json:"expires_at"`
 }
 
 func (q *Queries) CreateInvitation(ctx context.Context, arg CreateInvitationParams) (Invitation, error) {
@@ -30,6 +31,7 @@ func (q *Queries) CreateInvitation(ctx context.Context, arg CreateInvitationPara
 		arg.CreatorID,
 		arg.BandID,
 		arg.Body,
+		arg.GrantsAdmin,
 		arg.ExpiresAt,
 	)
 	var i Invitation
@@ -39,6 +41,7 @@ func (q *Queries) CreateInvitation(ctx context.Context, arg CreateInvitationPara
 		&i.CreatorID,
 		&i.BandID,
 		&i.Keep,
+		&i.GrantsAdmin,
 		&i.CreatedAt,
 		&i.ExpiresAt,
 	)
@@ -62,7 +65,7 @@ func (q *Queries) CullInvitations(ctx context.Context, arg CullInvitationsParams
 }
 
 const getInvitation = `-- name: GetInvitation :one
-SELECT id, body, creator_id, band_id, keep, created_at, expires_at FROM invitation 
+SELECT id, body, creator_id, band_id, keep, grants_admin, created_at, expires_at FROM invitation 
 WHERE body = $1
 GROUP BY id
 LIMIT 1
@@ -77,6 +80,7 @@ func (q *Queries) GetInvitation(ctx context.Context, body string) (Invitation, e
 		&i.CreatorID,
 		&i.BandID,
 		&i.Keep,
+		&i.GrantsAdmin,
 		&i.CreatedAt,
 		&i.ExpiresAt,
 	)

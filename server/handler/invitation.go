@@ -41,19 +41,27 @@ func (cfg *config) CreateInvitation(w http.ResponseWriter, r *http.Request) {
 		expireTime = time.UnixMilli(int64(expireMs))
 	}
 
+	grantsAdminString := r.URL.Query().Get("make_admin")
+	grantsAdmin := false
+	if grantsAdminString == "true" {
+		grantsAdmin = true
+	}
+
 	var invitation database.Invitation
 	for i := 0; i < 5; i++ {
 		// HACK: I would do this in a smarter way if I was more worried about invitation collisions
 		invitation, err = cfg.db.CreateInvitation(r.Context(), database.CreateInvitationParams{
-			CreatorID: int32(id),
-			BandID:    int32(bandID),
-			Body:      generateInvitationBody(10),
-			ExpiresAt: expireTime,
+			CreatorID:   int32(id),
+			BandID:      int32(bandID),
+			Body:        generateInvitationBody(10),
+			GrantsAdmin: grantsAdmin,
+			ExpiresAt:   expireTime,
 		})
 		if err == nil {
 			RespondWithJSON(w, http.StatusCreated, invitation)
 			return
 		}
+		// NOTE: exponential backoff here might be overkill
 		retryTime := time.Second * time.Duration(math.Pow(2.0, float64(i)))
 		log.Printf("encountered error on attempt %d: %v", i, err)
 		log.Println("if this is not a uniqueness error, we have a problem")

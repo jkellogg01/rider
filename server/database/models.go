@@ -35,11 +35,12 @@ type Band struct {
 }
 
 type Invitation struct {
-	ID        int32     `json:"id"`
-	Body      string    `json:"body"`
-	CreatorID int32     `json:"creator_id"`
-	BandID    int32     `json:"band_id"`
-	Keep      bool      `json:"keep"`
-	CreatedAt time.Time `json:"created_at"`
-	ExpiresAt time.Time `json:"expires_at"`
+	ID          int32     `json:"id"`
+	Body        string    `json:"body"`
+	CreatorID   int32     `json:"creator_id"`
+	BandID      int32     `json:"band_id"`
+	Keep        bool      `json:"keep"`
+	GrantsAdmin bool      `json:"grants_admin"`
+	CreatedAt   time.Time `json:"created_at"`
+	ExpiresAt   time.Time `json:"expires_at"`
 }

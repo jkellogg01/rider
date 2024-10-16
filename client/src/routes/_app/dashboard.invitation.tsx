@@ -43,8 +43,9 @@ export const Route = createFileRoute("/_app/dashboard/invitation")({
       queryKey: ["invitation", search],
       staleTime: 1000 * 15 * 60,
       queryFn: async () => {
+        const expire = Date.parse(search.expire);
         const res = await fetch(
-          `/api/bands/join/${search.band}?make_admin=${search.make_admin}&expires_at=${search.expire}`,
+          `/api/bands/join/${search.band}?make_admin=${search.make_admin}&expire=${expire}`,
         );
         if (!res.ok) {
           res

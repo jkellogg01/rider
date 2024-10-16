@@ -79,7 +79,7 @@ function App() {
     return <Navigate to="/login" />;
   }
 
-  if (search.band === null && bands) {
+  if (search.band === null && bands && bands.length > 0) {
     return <Navigate to="." search={{ band: bands[0].id }} />;
   }
 

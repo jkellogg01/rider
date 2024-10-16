@@ -6,9 +6,9 @@ LIMIT 1;
 
 -- name: CreateInvitation :one
 INSERT INTO invitation (
-  creator_id, band_id, body, expires_at
+  creator_id, band_id, body, grants_admin, expires_at
 ) VALUES (
-  $1, $2, $3, $4
+  $1, $2, $3, $4, $5
 ) RETURNING *;
 
 -- name: CullInvitations :exec
