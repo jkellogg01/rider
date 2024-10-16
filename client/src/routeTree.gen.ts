@@ -17,6 +17,7 @@ import { Route as IndexImport } from './routes/index'
 import { Route as AppDashboardImport } from './routes/_app/dashboard'
 import { Route as AccountRegisterImport } from './routes/_account/register'
 import { Route as AccountLoginImport } from './routes/_account/login'
+import { Route as AppDashboardInvitationImport } from './routes/_app/dashboard.invitation'
 
 // Create/Update Routes
 
@@ -48,6 +49,11 @@ const AccountRegisterRoute = AccountRegisterImport.update({
 const AccountLoginRoute = AccountLoginImport.update({
   path: '/login',
   getParentRoute: () => AccountRouteRoute,
+} as any)
+
+const AppDashboardInvitationRoute = AppDashboardInvitationImport.update({
+  path: '/invitation',
+  getParentRoute: () => AppDashboardRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -96,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardImport
       parentRoute: typeof AppRouteImport
     }
+    '/_app/dashboard/invitation': {
+      id: '/_app/dashboard/invitation'
+      path: '/invitation'
+      fullPath: '/dashboard/invitation'
+      preLoaderRoute: typeof AppDashboardInvitationImport
+      parentRoute: typeof AppDashboardImport
+    }
   }
 }
 
@@ -115,12 +128,24 @@ const AccountRouteRouteWithChildren = AccountRouteRoute._addFileChildren(
   AccountRouteRouteChildren,
 )
 
+interface AppDashboardRouteChildren {
+  AppDashboardInvitationRoute: typeof AppDashboardInvitationRoute
+}
+
+const AppDashboardRouteChildren: AppDashboardRouteChildren = {
+  AppDashboardInvitationRoute: AppDashboardInvitationRoute,
+}
+
+const AppDashboardRouteWithChildren = AppDashboardRoute._addFileChildren(
+  AppDashboardRouteChildren,
+)
+
 interface AppRouteRouteChildren {
-  AppDashboardRoute: typeof AppDashboardRoute
+  AppDashboardRoute: typeof AppDashboardRouteWithChildren
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
-  AppDashboardRoute: AppDashboardRoute,
+  AppDashboardRoute: AppDashboardRouteWithChildren,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
@@ -132,7 +157,8 @@ export interface FileRoutesByFullPath {
   '': typeof AppRouteRouteWithChildren
   '/login': typeof AccountLoginRoute
   '/register': typeof AccountRegisterRoute
-  '/dashboard': typeof AppDashboardRoute
+  '/dashboard': typeof AppDashboardRouteWithChildren
+  '/dashboard/invitation': typeof AppDashboardInvitationRoute
 }
 
 export interface FileRoutesByTo {
@@ -140,7 +166,8 @@ export interface FileRoutesByTo {
   '': typeof AppRouteRouteWithChildren
   '/login': typeof AccountLoginRoute
   '/register': typeof AccountRegisterRoute
-  '/dashboard': typeof AppDashboardRoute
+  '/dashboard': typeof AppDashboardRouteWithChildren
+  '/dashboard/invitation': typeof AppDashboardInvitationRoute
 }
 
 export interface FileRoutesById {
@@ -150,14 +177,21 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteRouteWithChildren
   '/_account/login': typeof AccountLoginRoute
   '/_account/register': typeof AccountRegisterRoute
-  '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/dashboard': typeof AppDashboardRouteWithChildren
+  '/_app/dashboard/invitation': typeof AppDashboardInvitationRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '' | '/login' | '/register' | '/dashboard'
+  fullPaths:
+    | '/'
+    | ''
+    | '/login'
+    | '/register'
+    | '/dashboard'
+    | '/dashboard/invitation'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '' | '/login' | '/register' | '/dashboard'
+  to: '/' | '' | '/login' | '/register' | '/dashboard' | '/dashboard/invitation'
   id:
     | '__root__'
     | '/'
@@ -166,6 +200,7 @@ export interface FileRouteTypes {
     | '/_account/login'
     | '/_account/register'
     | '/_app/dashboard'
+    | '/_app/dashboard/invitation'
   fileRoutesById: FileRoutesById
 }
 
@@ -224,7 +259,14 @@ export const routeTree = rootRoute
     },
     "/_app/dashboard": {
       "filePath": "_app/dashboard.tsx",
-      "parent": "/_app"
+      "parent": "/_app",
+      "children": [
+        "/_app/dashboard/invitation"
+      ]
+    },
+    "/_app/dashboard/invitation": {
+      "filePath": "_app/dashboard.invitation.tsx",
+      "parent": "/_app/dashboard"
     }
   }
 }

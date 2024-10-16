@@ -88,7 +88,7 @@ function App() {
       <Header>
         <div className="flex flex-row gap-4 items-end">
           <BrandMark />
-          <BandSelection />
+          <BandSelection bands={bands} />
         </div>
       </Header>
       <div className="mx-auto container">
@@ -191,6 +191,8 @@ function BandSelection({
       </Select>
     );
   }
+
+  console.log({ bands });
 
   return (
     <Dialog defaultOpen>
